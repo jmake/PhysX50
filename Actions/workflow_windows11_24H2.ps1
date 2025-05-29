@@ -61,6 +61,9 @@ function COMPILATION
 
     cp .\Actions\vc16win64-cpu-only.xml physx\buildtools\presets\public\vc16win64-cpu-only.xml
 
+    ## Compiler requires the CUDA toolkit.  Please set the CUDAToolkit_ROOT
+    ##cp .\Actions\vc16win64-gpu.xml physx\buildtools\presets\public\vc16win64-cpu-only.xml
+
     Set-Location -Path physx 
     .\generate_projects.bat vc16win64-cpu-only
 
