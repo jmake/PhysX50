@@ -68,7 +68,7 @@ function COMPILATION
     ninja.exe -j4 install 
 
     Set-Location -Path ${EXECUTION_PATH} 
-    find physx\PhysX50 
+    #find physx\PhysX50 
 
     ##tar -cvf PhysX50.tar physx\PhysX50
     ##ls PhysX50.tar
