@@ -77,6 +77,8 @@ function COMPILATION
 
     Compress-Archive -Path "physx\PhysX50" -DestinationPath "PhysX50.zip"
     ls PhysX50.zip 
+    
+    ls .\physx\bin\win.x86_64.vc143.mt\release\SnippetDeformableMesh_64.exe
 
     Write-Host "[COMPILATION] OK!"
 }
