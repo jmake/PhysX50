@@ -17,7 +17,7 @@ jobs:
         run: .\Actions\workflow_windows11_24H2.ps1
 
       - name: Artifact
-        if: success() 
+        #if: success() 
         uses: actions/upload-artifact@v4
         with:
           name: ArtifactName1
