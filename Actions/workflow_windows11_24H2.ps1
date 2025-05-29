@@ -84,7 +84,7 @@ function COMPILATION
 $EXECUTION_PATH=(Get-Location).Path 
 Write-Host "[EXECUTION_PATH]:'${EXECUTION_PATH}'" 
 
-#CL_SETUP
+CL_SETUP
 COMPILATION 
 
 Set-Location -Path ${EXECUTION_PATH} 
