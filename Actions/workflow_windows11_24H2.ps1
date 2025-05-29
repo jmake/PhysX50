@@ -86,14 +86,3 @@ Write-Host "[EXECUTION_PATH]:'${EXECUTION_PATH}'"
 
 CL_SETUP
 COMPILATION 
-
-Set-Location -Path ${EXECUTION_PATH} 
-Write-Host "'" ($MyInvocation.MyCommand.Name) "' ..." 
-
-<#
-
-cl.exe               # Microsoft (R) C/C++ Optimizing Compiler Version 19.39.33523 for x64
-cmake.exe --version  # cmake version 3.28.0-msvc1
-ninja.exe --version  # 1.11.0 
-
-#>
