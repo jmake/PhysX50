@@ -59,6 +59,8 @@ function COMPILATION
 
     #>
 
+    cp .\Actions\vc16win64-cpu-only.xml physx\buildtools\presets\public\vc16win64-cpu-only.xml
+
     Set-Location -Path physx 
     .\generate_projects.bat vc16win64-cpu-only
 
