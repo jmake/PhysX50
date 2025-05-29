@@ -23,7 +23,15 @@ foreach(lib ${PHYSX_STATIC_LIBS})
 endforeach()
 
 ## 3.0. EXECUTABLE 
-set(SRCS "../simplest.cpp")
+message(STATUS "CMAKE_SOURCE_DIR = ${CMAKE_SOURCE_DIR}")
+message(STATUS "CMAKE_CURRENT_SOURCE_DIR = ${CMAKE_CURRENT_SOURCE_DIR}")
+
+file(GLOB SRCS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp") 
+message(STATUS "Files:")
+foreach(file ${SRCS})
+   message(STATUS " - ${file}")
+endforeach()
+
 set(EXECUTABLE "snippetHelloWorld")
 add_executable(${EXECUTABLE} ${SRCS})
 #set_target_properties(${EXECUTABLE} PROPERTIES SUFFIX ".x")

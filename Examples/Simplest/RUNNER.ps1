@@ -44,10 +44,11 @@ function COMPILATION
 
     ninja.exe -j4  
 
-    .\snippetHelloWorld.exe 
-    more .\test_output.txt
+    cp "$PHYSX_ROOT_DIR\bin\win.x86_64.vc143.mt\release\*.dll" .
 
-#    ctest.exe 
+    .\snippetHelloWorld.exe 
+
+    ctest.exe 
 
     Set-Location -Path ${EXECUTION_PATH} 
     Write-Host "[COMPILATION] OK!"

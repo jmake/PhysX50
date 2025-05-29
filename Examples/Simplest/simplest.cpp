@@ -2,8 +2,6 @@
 #include <fstream>
 #include <iostream>
 
-
-
 #include <PxConfig.h>
 #include <PxPhysicsAPI.h>
 
@@ -28,26 +26,27 @@ void InitializePhysX()
 {
 	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
-    std::cout<<"[InitializePhysX]"<<std::endl;
+    std::cout<<"[Simplest] InitializePhysX"<<std::endl;
 }
 
 
 void ShutdownPhysX()
 {
-    gPhysics->release();
-    gFoundation->release();
+    if(gPhysics) gPhysics->release();
+    if(gFoundation) gFoundation->release();
 
-    std::cout<<"[ShutdownPhysX]"<<std::endl;
+    std::cout<<"[Simplest] ShutdownPhysX"<<std::endl;
 }
 
 
 int main()
 {
     std::ofstream out("test_output.txt");
-    out << "[snippetHelloWorld] ok!" << std::endl;
-    std::cout << "[snippetHelloWorld] executed!" << std::endl;
+    out << "[Simplest] ok!" << std::endl;
 
     InitializePhysX();
     ShutdownPhysX();
+
+    std::cout << "[Simplest] Done!" << std::endl;
     return 0;
 }
