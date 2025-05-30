@@ -1,4 +1,7 @@
 #include <ctype.h>
+#include <fstream>
+#include <iostream>
+
 #include "PxPhysicsAPI.h"
 #include "../snippetcommon/SnippetPrint.h"
 #include "../snippetcommon/SnippetPVD.h"
@@ -233,8 +236,10 @@ static void createDeformableVolumes(const PxCookingParams& params)
 	connectCubeToDeformableVolume(rigidCubeB, 2*halfExtent, cubePosB, deformableVolumeCone);
 }
 
-void initPhysics(bool /*interactive*/)
+void InitPhysics(bool /*interactive*/)
 {
+    std::cout<<"[SpicyTech] initPhysics"<<std::endl;
+
 	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 	gPvd = PxCreatePvd(*gFoundation);
 	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
@@ -296,8 +301,10 @@ void initPhysics(bool /*interactive*/)
 	createDeformableVolumes(params);
 }
 
-void stepPhysics(bool /*interactive*/)
+void StepPhysics(bool /*interactive*/, PxU32 iteration)
 {
+    std::cout<<"[SpicyTech] stepPhysics ("<< iteration <<")"<<std::endl;
+
 	const PxReal dt = 1.0f / 60.f;
 
 	gScene->simulate(dt);
@@ -310,8 +317,10 @@ void stepPhysics(bool /*interactive*/)
 	}
 }
 	
-void cleanupPhysics(bool /*interactive*/)
+void CleanUpPhysics(bool /*interactive*/)
 {
+    std::cout<<"[SpicyTech] CleanUpPhysics"<<std::endl;
+
 	for (PxU32 i = 0; i < gDeformableVolumes.size(); i++)
 		gDeformableVolumes[i].release();
 	gDeformableVolumes.reset();
@@ -340,10 +349,9 @@ int main(int, const char*const*)
 	renderLoop();
 #else
 	static const PxU32 frameCount = 100;
-	initPhysics(false);
-	for(PxU32 i=0; i<frameCount; i++)
-		stepPhysics(false);
-	cleanupPhysics(false);
+	InitPhysics(false);
+	for(PxU32 i=0; i<frameCount; i++) StepPhysics(false, i);
+	CleanUpPhysics(false);
 #endif
 
 	return 0;
