@@ -28,6 +28,28 @@ function CL_SETUP
 
 
 <#---------------------------------------------------------------------------------------------#>
+function Vc16Win64CPU() 
+{
+    cp ..\Actions\vc16win64-cpu-only.xml buildtools\presets\public\vc16win64-cpu-only.xml
+    .\generate_projects.bat vc16win64-cpu-only
+    Set-Location -Path compiler\vc16win64-cpu-only 
+}
+
+function Vc16Win64GPU() 
+{
+    #if (Test-Path "physx\vc16win64") {Remove-Item -Recurse -Force "physx\vc16win64"}
+
+    ## Compiler requires the CUDA toolkit.  Please set the CUDAToolkit_ROOT
+    #$env:PATH="$env:PATH;F:\z2025_1\Nvidia\bin;" 
+
+    cp ..\Actions\vc16win64-gpu.xml buildtools\presets\public\vc16win64-cpu-only.xml
+
+    .\generate_projects.bat vc16win64-cpu-only
+
+    Set-Location -Path compiler\vc16win64 
+}
+
+
 function COMPILATION
 {
     Write-Host "[COMPILATION] ... " #-NoNewline
@@ -58,27 +80,21 @@ function COMPILATION
             <platform targetPlatform="win64" compiler="vc16" generator="ninja" />
 
     #>
-
-    cp .\Actions\vc16win64-cpu-only.xml physx\buildtools\presets\public\vc16win64-cpu-only.xml
-
-    ## Compiler requires the CUDA toolkit.  Please set the CUDAToolkit_ROOT
-    ##cp .\Actions\vc16win64-gpu.xml physx\buildtools\presets\public\vc16win64-cpu-only.xml
+    if (Test-Path "bin") {Remove-Item -Recurse -Force "physx\bin"}
 
     Set-Location -Path physx 
-    .\generate_projects.bat vc16win64-cpu-only
+    #Vc16Win64CPU
+    #Vc16Win64GPU
 
-    Set-Location -Path compiler\vc16win64-cpu-only 
-    ninja.exe -j4 install 
+    ninja.exe -f build-release.ninja -j4 install sdk_gpu_source_bin\all
 
     Set-Location -Path ${EXECUTION_PATH} 
 
-    ##tar -cvf PhysX50.tar physx\PhysX50
-    ##ls PhysX50.tar
-
+    if (Test-Path "PhysX50.zip") {Remove-Item -Recurse -Force "PhysX50.zip"}
     Compress-Archive -Path "physx\PhysX50" -DestinationPath "PhysX50.zip"
     ls PhysX50.zip 
-    
-    ls .\physx\bin\win.x86_64.vc143.mt\release\SnippetDeformableMesh_64.exe
+
+    #ls .\physx\bin\win.x86_64.vc143.mt\release\SnippetDeformableMesh_64.exe
 
     Write-Host "[COMPILATION] OK!"
 }
@@ -88,5 +104,16 @@ function COMPILATION
 $EXECUTION_PATH=(Get-Location).Path 
 Write-Host "[EXECUTION_PATH]:'${EXECUTION_PATH}'" 
 
-CL_SETUP
+try {cl.exe} catch{CL_SETUP}
 COMPILATION 
+
+Set-Location -Path ${EXECUTION_PATH} 
+Write-Host "'" ($MyInvocation.MyCommand.Name) "' ..." 
+
+<#
+
+cl.exe               # Microsoft (R) C/C++ Optimizing Compiler Version 19.39.33523 for x64
+cmake.exe --version  # cmake version 3.28.0-msvc1
+ninja.exe --version  # 1.11.0 
+
+#>
