@@ -1,6 +1,7 @@
 Clear-Host
 #try {deactivate} catch {Get-Location}
 
+
 <#---------------------------------------------------------------------------------------------#>
 function CL_SETUP
 {
@@ -25,6 +26,7 @@ function CL_SETUP
     cmake.exe --version 
     ninja.exe --version 
 }
+
 
 <#---------------------------------------------------------------------------------------------#>
 function CUDART_SETUP 
@@ -60,6 +62,9 @@ function CUDART_SETUP
     $env:CUDART_LIB
     $env:CUDART_INC
 
+    $env:INCLUDES +=" -I${env:CUDART_INC} "
+    $env:LIBRARIES +=" -LIBPATH:${env:CUDART_LIB} "
+
     Set-Location -Path $Root
 }
 
@@ -90,12 +95,23 @@ function NVCC_SETUP
     Get-ChildItem nvcc.exe 
 
     $env:NVCC_PATH="$Root\$NVCC\bin" 
-    $env:NVCC="$env:NVCC_PATH\nvcc.exe"  
-    
     $env:NVCC_PATH=("$env:NVCC_PATH").replace("\","\\")
-    $env:NVCC=("$env:NVCC").replace("\","\\")
 
+    $env:NVCC="$env:NVCC_PATH\nvcc.exe"  
+    $env:NVCC=("$env:NVCC").replace("\","\\")
     &$env:NVCC --version 
+
+    $env:PATH="$env:PATH;$env:NVCC_PATH;"
+    nvcc.exe --version 
+
+    $NVCC_LIB="$Root\$NVCC\lib\x64" 
+    $NVCC_LIB=("$NVCC_LIB").replace("\","\\")
+
+    $NVCC_INC="$Root\$NVCC\include" 
+    $NVCC_INC=("$NVCC_INC").replace("\","\\")
+
+    $env:INCLUDES+=" -I${NVCC_INC} "
+    $env:LIBRARIES+=" -LIBPATH:${NVCC_LIB} "
 
     Set-Location -Path $Root
 }
@@ -132,6 +148,7 @@ int main()
     return 0;
 }
 '@
+
     CreateFile -Path "." -FileName "simplest.cu" -Content $text 
 }
 
@@ -148,14 +165,17 @@ set_target_properties(simplest PROPERTIES LINKER_LANGUAGE CXX)
 ## CMAKE_CUDA_ARCHITECTURES now detected for NVCC, empty CUDA_ARCHITECTURES not allowed.
 set_property(TARGET simplest PROPERTY CUDA_ARCHITECTURES OFF) 
 
+## nvcc warning : Support for offline compilation for architectures prior to '<compute/sm/lto>_75' will be removed in a future release (Use -Wno-deprecated-gpu-targets to suppress warning).
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Wno-deprecated-gpu-targets")
+
 enable_testing()
 add_test(NAME simplest COMMAND simplest) 
 '@
+
     CreateFile -Path "." -FileName "CMakeLists.txt" -Content $text 
 }
 
 
-<#---------------------------------------------------------------------------------------------#>
 function COMPILATION_OBVIOUS 
 { 
     $env:NVCC
@@ -170,30 +190,16 @@ function COMPILATION_OBVIOUS
 }
 
 
-function COMPILATION_NICEST 
-{ 
-    $env:INCLUDES=" -I${env:CUDART_INC}"
-    $env:LIBRARIES=" -LIBPATH:${env:CUDART_LIB} "
-
-    SimplestCU_Create
-    &$env:NVCC -o simplest.exe ./simplest.cu 
-    .\simplest.exe
-    rm simplest.exe 
-
-    $env:PATH="$env:PATH;$env:NVCC_PATH;"
-    nvcc.exe --version 
-
-    nvcc.exe -o simplest.exe ./simplest.cu
-    .\simplest.exe
-    rm simplest.exe       
-}
-
-
 function COMPILATION_PERFECT  
 {
-    $env:INCLUDES=" -I${env:CUDART_INC}"
-    $env:LIBRARIES=" -LIBPATH:${env:CUDART_LIB} "
-    $env:PATH="$env:PATH;$env:NVCC_PATH;"
+    try {cl.exe} 
+    catch{CL_SETUP}
+
+    ##$env:INCLUDES=" -I${env:CUDART_INC}"
+    ##$env:LIBRARIES=" -LIBPATH:${env:CUDART_LIB} "
+    ##$env:PATH="$env:PATH;$env:NVCC_PATH;"
+    
+    #$env:PATH="$env:PATH;F:\z2025_1\Nvidia\bin;" 
 
     $TEST_PATH="Exec" 
     if (Test-Path $TEST_PATH) {Remove-Item -Recurse -Force $TEST_PATH}
@@ -203,26 +209,58 @@ function COMPILATION_PERFECT
     SimplestCU_Create
     CMakeLists_Create 
 
-    cmake.exe . -G Ninja 
+    cmake.exe . -G Ninja #-DCMAKE_CUDA_ARCHITECTURES=75 #-DCUDAToolkit_ROOT="F:\z2025_1\Nvidia" 
     ninja.exe
     ctest.exe
 }
+
+
+function SETUP() 
+{
+    ##$RELEASE="11.5.50"
+    $RELEASE="12.2.128" # :) 
+    $RELEASE="12.6.77" # :) 
+    $URL_MAIN="https://developer.download.nvidia.com/compute/cuda/redist" 
+
+    $EXECUTION_PATH=(Get-Location).Path 
+
+    try {cl.exe} 
+    catch{CL_SETUP}
+
+    try {nvcc.exe --version} 
+    catch{NVCC_SETUP -Root ${EXECUTION_PATH} -Version ${RELEASE}}
+
+    try {
+        SimplestCU_Create
+        nvcc.exe -o simplest.exe ./simplest.cu
+        if ($LASTEXITCODE -ne 0) {throw "nvcc failed with exit code $LASTEXITCODE"} 
+
+        #.\simplest.exe
+    } 
+    catch{CUDART_SETUP -Root ${EXECUTION_PATH} -Version ${RELEASE}}
+
+
+    try {
+        .\simplest.exe
+        rm simplest.exe 
+    }
+    catch 
+    {
+        Write-Host "'simplest.exe' fails!!" 
+    }
+}
+
 
 <#---------------------------------------------------------------------------------------------#>
 $EXECUTION_PATH=(Get-Location).Path 
 Write-Host "[EXECUTION_PATH]:'${EXECUTION_PATH}'" 
 
-$RELEASE="11.5.50" # 2022
-$RELEASE="12.6.77" # 2025 
-$URL_MAIN="https://developer.download.nvidia.com/compute/cuda/redist" 
-
-CL_SETUP
-NVCC_SETUP -Root ${EXECUTION_PATH} -Version ${RELEASE}  
-CUDART_SETUP -Root ${EXECUTION_PATH} -Version ${RELEASE}  
+#SETUP
 
 #COMPILATION_OBVIOUS 
 #COMPILATION_NICEST
 COMPILATION_PERFECT 
+
 
 Set-Location -Path ${EXECUTION_PATH} 
 Write-Host "'" ($MyInvocation.MyCommand.Name) "' ..." 
