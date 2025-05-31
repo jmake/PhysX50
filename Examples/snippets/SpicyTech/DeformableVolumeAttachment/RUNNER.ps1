@@ -34,8 +34,6 @@ function COMPILATION
 
     Write-Host "[COMPILATION] ... " #-NoNewline
 
-cp ..\snippetutils\*.* .
-
     if (Test-Path $FolderName){Remove-Item -Recurse -Force $FolderName}
     New-Item -ItemType Directory -Path $FolderName 
     Set-Location -Path $FolderName
