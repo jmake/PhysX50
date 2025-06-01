@@ -1,12 +1,17 @@
 using System;
+using System.Runtime.InteropServices;
 
 public class runme
 {
+  [DllImport("kernel32.dll", SetLastError = true)]
+  static extern bool SetDllDirectory(string lpPathName);  
+
   static void Main() 
   {
     int[] source = { 1, 2, 3 };
     int[] target = new int[ source.Length ];
 
+    SetDllDirectory("Assets\\Plugins");
     example.myArrayCopy( source, target, target.Length );
           
     Console.WriteLine( "Contents of copy target array using default marshaling" );
@@ -31,9 +36,9 @@ public class runme
     Console.WriteLine( "Contents of arrays after swapping using fixed arrays" );
     example.myArrayPrint(source, source.Length);
     example.myArrayPrint(target, target.Length);
-
   }
   
+
   static void PrintArray( int[] a ) 
   {
     foreach ( int i in a ) 

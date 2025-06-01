@@ -24,3 +24,22 @@ swig_add_library(LibraryName
   LANGUAGE csharp
   SOURCES example.i example.cpp 
 )
+
+## 'PROJEC_NAME\Assets\Plugins' structure 
+add_custom_command(TARGET LibraryName POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_SOURCE_DIR}/Assets/Plugins/SpicyTech"
+
+    # Move the DLL
+    COMMAND ${CMAKE_COMMAND} -E rename 
+        "$<TARGET_FILE:LibraryName>" 
+        "${CMAKE_SOURCE_DIR}/Assets/Plugins/LibraryName.dll"
+
+    # Move the generated C# files
+    COMMAND ${CMAKE_COMMAND} -E rename 
+        "${CMAKE_SWIG_OUTDIR}/example.cs"
+        "${CMAKE_SOURCE_DIR}/Assets/Plugins/SpicyTech/example.cs"
+
+    COMMAND ${CMAKE_COMMAND} -E rename 
+        "${CMAKE_SWIG_OUTDIR}/examplePINVOKE.cs"
+        "${CMAKE_SOURCE_DIR}/Assets/Plugins/SpicyTech/examplePINVOKE.cs"
+)

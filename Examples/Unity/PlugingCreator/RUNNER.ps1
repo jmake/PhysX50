@@ -34,7 +34,6 @@ function COMPILATION
 
     Write-Host "[COMPILATION] ... " #-NoNewline
 
-
     if (Test-Path $FolderName){Remove-Item -Recurse -Force $FolderName}
     New-Item -ItemType Directory -Path $FolderName 
     Set-Location -Path $FolderName
@@ -42,21 +41,20 @@ function COMPILATION
     cp ..\Sources\*.* 
     cp ..\CMakeLists.txt . 
 
-    ##cmake . "-DPHYSX_ROOT_DIR=${PHYSX_ROOT_DIR}" -G "Ninja"; ninja.exe -j4 
-    #cmake . "-DPHYSX_ROOT_DIR=${PHYSX_ROOT_DIR}" -G "Ninja"; cmake --build . --target SWIG_fileName; ls SWIG_fileName.dll 
+    cmake . "-DPHYSX_ROOT_DIR=${PHYSX_ROOT_DIR}"; cmake --build . --target ALL_BUILD --config Release;
+    Set-Location -Path ${EXECUTION_PATH} 
 
-    ##cmake . "-DPHYSX_ROOT_DIR=${PHYSX_ROOT_DIR}"; MSBuild.exe simplest.sln /p:Configuration=Release
-    cmake . "-DPHYSX_ROOT_DIR=${PHYSX_ROOT_DIR}"; cmake --build . --target ALL_BUILD --config Release; #ls Release
+    if (Test-Path Assets){Remove-Item -Recurse -Force Assets}
+    mv "$FolderName\Assets" 
 
-    cd Release
-    ls 
-    csc.exe /unsafe ..\runme.cs example.cs examplePINVOKE.cs /platform:x64 /target:exe /out:runme.exe
-    .\runme.exe 
-    #cd ..
-    #Set-Location -Path ${EXECUTION_PATH}; exit 
+    csc.exe /unsafe `
+    ${EXECUTION_PATH}\Sources\runme.cs `
+    ${EXECUTION_PATH}\Assets\Plugins\SpicyTech\example.cs `
+    ${EXECUTION_PATH}\Assets\Plugins\SpicyTech\examplePINVOKE.cs `
+    /platform:x64 /target:exe `
+    /out:runme.exe `
 
-    #cp F:\z2025_1\PhysX\PhysX50\physx\PhysX50\bin\win.x86_64.vc143.mt\release\*.dll .
-    #.\snippetHelloWorld.exe 
+    .\runme.exe
 
     Set-Location -Path ${EXECUTION_PATH} 
     Write-Host "[COMPILATION] OK!"
