@@ -49,9 +49,9 @@ swig_add_library(LibraryName
                  SOURCES configuration.i 
                  spicytech.cpp 
 )
-swig_link_libraries(LibraryName ${LIBRARIES})
+swig_link_libraries(LibraryName ${PHYSX_STATIC_LIBS} ${LIBRARIES})
 target_include_directories(${SWIG_MODULE_LibraryName_REAL_NAME} PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
-target_link_libraries(${SWIG_MODULE_LibraryName_REAL_NAME} PRIVATE CUDA::cudart)
+target_link_libraries(${SWIG_MODULE_LibraryName_REAL_NAME} CUDA::cudart)
 
 ## 'PROJEC_NAME\Assets\Plugins' structure 
 add_custom_command(TARGET LibraryName POST_BUILD
@@ -70,4 +70,9 @@ add_custom_command(TARGET LibraryName POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E rename 
         "${CMAKE_SWIG_OUTDIR}/${MODULE_NAME}PINVOKE.cs"
         "${CMAKE_SOURCE_DIR}/Assets/Plugins/SpicyTech/${MODULE_NAME}PINVOKE.cs"
+
+    # Copy Unity test file 
+    COMMAND ${CMAKE_COMMAND} -E rename 
+        "${CMAKE_SOURCE_DIR}/SwigTest.cs"
+        "${CMAKE_SOURCE_DIR}/Assets/Plugins/SwigTest.cs"
 )

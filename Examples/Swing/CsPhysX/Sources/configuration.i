@@ -36,11 +36,3 @@ void myArrayCopyUsingFixedArrays( int *sourceArray, int* targetArray, int nitems
 
 %apply int FIXED[] { int* array1 }
 %apply int FIXED[] { int* array2 }
-
-%inline %{
-void myArraySwapUsingFixedArrays( int* array1, int* array2, int nitems ) {
-  myArraySwap(array1, array2, nitems);
-}
-%}
-
-  

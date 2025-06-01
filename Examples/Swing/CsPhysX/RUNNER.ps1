@@ -47,14 +47,16 @@ function COMPILATION
     if (Test-Path Assets){Remove-Item -Recurse -Force Assets}
     mv "$FolderName\Assets" 
 
-    if (Test-Path runme.exe){Remove-Item -Recurse -Force runme.exe}
+    cd "Assets\Plugins" 
+    cp ${PHYSX_ROOT_DIR}\bin\win.x86_64.vc143.mt\release\*.dll .
+
     csc.exe /unsafe `
     ${EXECUTION_PATH}\Sources\runme.cs `
     ${EXECUTION_PATH}\Assets\Plugins\SpicyTech\ModuleName.cs `
     ${EXECUTION_PATH}\Assets\Plugins\SpicyTech\ModuleNamePINVOKE.cs `
     /platform:x64 /target:exe `
     /out:runme.exe `
-
+    
     .\runme.exe
     if (Test-Path runme.exe){Remove-Item -Recurse -Force runme.exe}
 
