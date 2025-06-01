@@ -1,4 +1,14 @@
 
+## See 
+
+https://github.com/swig/swig
+
+https://medium.com/@jmake/an-python-interface-for-physx-bd221c9b06a
+
+https://www.swig.org/Doc4.3/Contents.html#Contents 
+
+https://www.swig.org/Doc4.3/CSharp.html#CSharp
+
 
 ## Test1b1
 ```
