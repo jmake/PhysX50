@@ -23,6 +23,9 @@ public class runme
 
     float physx = ModuleName.PhysxVersion();
     Console.WriteLine("[Tester] PhysX Version: " + physx);
+
+int spicyx = ModuleName.SpicyTest();
+Console.WriteLine("[Tester] SpicyX: " + spicyx);
   }
   
 }

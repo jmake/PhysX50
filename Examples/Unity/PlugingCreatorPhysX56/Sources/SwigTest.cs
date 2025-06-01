@@ -31,11 +31,14 @@ void Awake()
         //ModuleName.myArrayPrint(source, source.Length);        
         ArrayPrint(target); 
 
-int cuda = ModuleName.CudaVersion();
-Debug.Log("Cuda Version: " + cuda);
+        int cuda = ModuleName.CudaVersion();
+        Debug.Log("Cuda Version: " + cuda);
 
-float physx = ModuleName.PhysxVersion();
-Debug.Log("PhysX Version: " + physx);
+        float physx = ModuleName.PhysxVersion();
+        Debug.Log("PhysX Version: " + physx);
+
+int spicyx = ModuleName.SpicyTest();
+Debug.Log("SpicyX: " + spicyx);
 
         Debug.Log("[Start] ok!");
     }

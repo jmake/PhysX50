@@ -1,26 +1,6 @@
 #include "spicytech.hpp"
+#include "spicyphysics.hpp"
 
-#include <cuda_runtime.h>
-
-#include <PxConfig.h>
-#include <PxPhysicsAPI.h>
-
-#include <foundation/PxMat33.h>
-#include <extensions/PxShapeExt.h>
-#include <extensions/PxSimpleFactory.h>
-#include <extensions/PxExtensionsAPI.h>
-#include <extensions/PxDefaultAllocator.h>
-#include <extensions/PxDefaultErrorCallback.h>
-//#include <extensions/PxDefaultCpuDispatcher.h>
-//#include <extensions/PxDefaultSimulationFilterShader.h>
-
-using namespace physx;
-
-static PxPhysics*  gPhysics	= NULL;
-static PxFoundation*  gFoundation = NULL;
-
-static PxDefaultAllocator  gAllocator;
-static PxDefaultErrorCallback  gErrorCallback;
 
 void myArrayCopy( int* sourceArray, int* targetArray, int nitems ) 
 {
