@@ -3,6 +3,19 @@
 %{
 #include "spicytech.hpp"
 %}
+
+%include "std_vector.i"
+%template(FloatVector) std::vector<float>;
+
+
+%include "typemaps.i"
+%include "arrays_csharp.i"
+
+%apply float OUTPUT[] { float* outArray };
+
+%include "spicytech.hpp"
+
+/*
 %include "arrays_csharp.i"
 
 %apply int  INPUT[] { int* sourceArray }
@@ -15,7 +28,7 @@
 
 
 %include "spicytech.hpp"
-
+*/
 /*
 %clear int* sourceArray;
 %clear int* targetArray;

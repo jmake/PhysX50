@@ -30,6 +30,15 @@ Console.WriteLine("[Tester] Initial value: " + obj.GetValue());
 obj.SetValue(42);
 Console.WriteLine("[Tester] New value: " + obj.GetValue());
 
+obj.InitFlatArray(10); 
+int size = obj.GetFlatArraySize();
+float[] result = new float[size];
+obj.GetFlatArrayRaw(result);
+
+Console.WriteLine("[Tester] size: " + size);
+Console.WriteLine("[Tester] vector: [" + string.Join(", ", result) +"] ");
+
+
   }
   
 }

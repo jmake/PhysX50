@@ -12,11 +12,20 @@ int CudaVersion();
 int SpicyTest(); 
 
 
-class SpicyX {
+class SpicyX 
+{
     public:
-        SpicyX(int x);
-        int GetValue() const;
-        void SetValue(int x);
+    SpicyX(int x);
+    int GetValue() const;
+    void SetValue(int x);
+
+    std::vector<float>& GetFlatArray(); 
+
+void GetFlatArrayRaw(float* outArray) const;
+int GetFlatArraySize() const;
+void InitFlatArray(int n); 
+
     private:
-        int value;
+    int value;
+    std::vector<float> flatArray; 
 };

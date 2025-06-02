@@ -29,10 +29,29 @@ int CudaVersion()
 
 SpicyX::SpicyX(int x) : value(x) {}
 
-int SpicyX::GetValue() const {
-    return value;
+int SpicyX::GetValue() const 
+{
+  return value;
 }
 
-void SpicyX::SetValue(int x) {
-    value = x;
+void SpicyX::SetValue(int x) 
+{
+  value = x;
+}
+
+std::vector<float>& SpicyX::GetFlatArray() 
+{
+  return flatArray;  // SWIG copies it into a new C# float[]
+}
+
+void SpicyX::GetFlatArrayRaw(float* outArray) const {
+    std::copy(flatArray.begin(), flatArray.end(), outArray);
+}
+
+int SpicyX::GetFlatArraySize() const {
+    return static_cast<int>(flatArray.size());
+}
+
+void SpicyX::InitFlatArray(int n){
+  flatArray = std::vector<float>(n, 0.0f);
 }
