@@ -1,35 +1,22 @@
-using System.Runtime.InteropServices;
-using UnityEngine;
 using System;
+using System.Linq;
 using System.Text;
+using System.Runtime.InteropServices;
 
+using UnityEngine;
 
 
 public class SwigTest : MonoBehaviour
 {
-    //[DllImport("LibraryName")]
-    //private static extern void myArrayPrint(int[] array4, int nitems);
-/*
-void Awake()
-{
-    try {
-        int[] source = { 1, 2, 3 }; 
-        myArrayPrint(source, source.Length); // or any other safe native function
+    void Awake()
+    {
     }
-    catch (DllNotFoundException e) {
-        Debug.LogError("DLL not found: " + e.Message);
-    }
-}
-*/
+
     void Start()
     {
         int[] source = { -1, -2, -3 };
         int[] target = new int[ source.Length ];
-
         ArrayPrint(target); 
-        //ModuleName.myArrayCopy( source, target, target.Length );
-        //ModuleName.myArrayPrint(source, source.Length);        
-        //ArrayPrint(target); 
 
         int cuda = ModuleName.CudaVersion();
         Debug.Log("Cuda Version: " + cuda);
@@ -37,16 +24,57 @@ void Awake()
         float physx = ModuleName.PhysxVersion();
         Debug.Log("PhysX Version: " + physx);
 
-        int spicyx = ModuleName.SpicyTest();
-        Debug.Log("SpicyX: " + spicyx);
-        Debug.Assert(spicyx == 69, "[ASSERT FAILED] SpicyTest fails!!");
+        TestSpicyX();
 
         Debug.Log("[Start] ok!");
     }
+
+
+    void TestSpicyX() 
+    {
+        SpicyX obj = new SpicyX();
+
+        int nDeformables = obj.Init();
+        Debug.Log("[Tester] nDeformables: " + nDeformables);
+
+        for(int i=0; i<69; i++) 
+        {
+            obj.Step(i);
+            
+            int nBodies = obj.nBodies(); 
+            Debug.Log("[Tester] nBodies: " + nBodies);
+
+            for(int iBody=0; iBody< nBodies; iBody++)
+            {
+                int nbVertices = obj.PositionsInvMassSize(iBody);
+                Debug.Log("[Tester] nbVertices: " + nbVertices / 4);
+
+                int nTriangles = obj.TrianglesSize(iBody); 
+                Debug.Log("[Tester] nTriangles: " + nTriangles / 3);
+
+                float[] vertices = new float[nbVertices];
+                obj.PositionsInvMassGet(iBody, vertices); 
+
+                int[] triangles = new int[nTriangles];
+                obj.TrianglesGet(iBody, triangles); 
+
+                float[] slice1 = vertices.Skip(2).Take(3).ToArray();
+                Debug.Log(string.Join(", ", slice1)); 
+
+                int[] slice2 = triangles.Skip(3).Take(3).ToArray();
+                Debug.Log(string.Join(", ", slice2)); 
+            } // iBody 
+
+        } // itime  
+
+        obj.Finish();
+    } // Main 
+
 
     void ArrayPrint(int[] array)
     {
         string result = "[" + string.Join(", ", array) + "]";
         Debug.Log(result);
     }
+
 }

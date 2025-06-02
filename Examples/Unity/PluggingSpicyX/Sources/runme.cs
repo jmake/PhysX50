@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 public class runme
@@ -20,25 +21,44 @@ public class runme
     float physx = ModuleName.PhysxVersion();
     Console.WriteLine("[Tester] PhysX Version: " + physx);
 
-    int spicyx = ModuleName.SpicyTest();
-    Console.WriteLine("[Tester] SpicyX: " + spicyx);
+    SpicyX obj = new SpicyX();
 
-    if (spicyx != 69) throw new System.Exception("[ASSERT FAILED] SpicyTest fails!!");
+    int nDeformables = obj.Init();
+    Console.WriteLine("[Tester] nDeformables: " + nDeformables);
 
-SpicyX obj = new SpicyX(10);
-Console.WriteLine("[Tester] Initial value: " + obj.GetValue());
-obj.SetValue(42);
-Console.WriteLine("[Tester] New value: " + obj.GetValue());
+    for(int i=0; i<69; i++) 
+    {
+      obj.Step(i);
+      
+      int nBodies = obj.nBodies(); 
+      Console.WriteLine("[Tester] nBodies: " + nBodies);
 
-obj.InitFlatArray(10); 
-int size = obj.GetFlatArraySize();
-float[] result = new float[size];
-obj.GetFlatArrayRaw(result);
+      for(int iBody=0; iBody< nBodies; iBody++)
+      {
+        int nbVertices = obj.PositionsInvMassSize(iBody);
+        Console.WriteLine("[Tester] nbVertices: " + nbVertices / 4);
 
-Console.WriteLine("[Tester] size: " + size);
-Console.WriteLine("[Tester] vector: [" + string.Join(", ", result) +"] ");
+        int nTriangles = obj.TrianglesSize(iBody); 
+        Console.WriteLine("[Tester] nTriangles: " + nTriangles / 3);
 
+        float[] vertices = new float[nbVertices];
+        obj.PositionsInvMassGet(iBody, vertices); 
 
-  }
-  
-}
+        int[] triangles = new int[nTriangles];
+        obj.TrianglesGet(iBody, triangles); 
+
+        float[] slice1 = vertices.Skip(2).Take(3).ToArray();
+        Console.WriteLine(string.Join(", ", slice1)); 
+
+        int[] slice2 = triangles.Skip(3).Take(3).ToArray();
+        Console.WriteLine(string.Join(", ", slice2)); 
+      } // iBody 
+
+    } // itime  
+
+    obj.Finish();
+
+    Console.WriteLine("[Tester] Finish");
+  } // Main 
+
+} // runme

@@ -6,26 +6,86 @@
 #include <algorithm>
 
 
-float PhysxVersion(); 
 int CudaVersion(); 
-
 int SpicyTest(); 
+float PhysxVersion(); 
 
+int RenderInit(); 
+void RenderFinish(); 
+
+void StepPhysics(bool /*interactive*/, 
+                    int iteration, 
+	                std::vector< std::vector<int> >& Triangles, 
+                    std::vector< std::vector<float> >& PositionsInvMass
+                ); 
 
 class SpicyX 
 {
     public:
-    SpicyX(int x);
-    int GetValue() const;
-    void SetValue(int x);
+    SpicyX();
 
-    std::vector<float>& GetFlatArray(); 
+    int GetFlatArraySize() const;
+    void InitFlatArray(int n); 
+    void GetFlatArrayRaw(float* outArray1) const;
 
-void GetFlatArrayRaw(float* outArray) const;
-int GetFlatArraySize() const;
-void InitFlatArray(int n); 
+    void Finish()
+    {
+        RenderFinish(); 
+    }
 
+    int Init() 
+    {
+        nDeformables = RenderInit(); 
+		std::cout<<"[SpicyX] nDeformables:" << nDeformables << std::endl;
+        return nDeformables; 
+    }
+
+
+    void Step(int i)
+    {
+        StepPhysics(false, i, Triangles, PositionsInvMass);
+		std::cout<<"[SpicyX]"
+        <<" nTriangles:" << Triangles.size()
+		<<" nPositionsInvMass:" << PositionsInvMass.size()
+        << std::endl;
+    }
+
+
+    int nBodies()
+    {
+        return PositionsInvMass.size(); 
+    }
+
+
+    int PositionsInvMassSize(int i)
+    {
+        return PositionsInvMass[i].size(); 
+    }
+
+
+    void PositionsInvMassGet(int i, float* outArray1)
+    {
+        std::copy(PositionsInvMass[i].begin(), PositionsInvMass[i].end(), outArray1);
+    }    
+
+
+    int TrianglesSize(int i)
+    {
+        return Triangles[i].size(); 
+    }
+    
+    void TrianglesGet(int i, int* outArray2)
+    {
+        std::copy(Triangles[i].begin(), Triangles[i].end(), outArray2);
+    }    
+
+    
     private:
-    int value;
-    std::vector<float> flatArray; 
+        std::vector<float> flatArray; 
+	    std::vector< std::vector<int> > Triangles; 
+        std::vector< std::vector<float> > PositionsInvMass; 
+               
+        int nDeformables; 
+        int nTriangles; 
+        int nbVertices; 
 };

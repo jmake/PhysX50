@@ -1,7 +1,7 @@
 #include <cuda_runtime.h>
 
-#include "spicytech.hpp"
-#include "spicyphysics.hpp"
+#include "spicyTech.hpp"
+#include "spicyDeformable.hpp"
 
 
 float PhysxVersion() 
@@ -27,25 +27,10 @@ int CudaVersion()
 }
 
 
-SpicyX::SpicyX(int x) : value(x) {}
+SpicyX::SpicyX() {}
 
-int SpicyX::GetValue() const 
-{
-  return value;
-}
-
-void SpicyX::SetValue(int x) 
-{
-  value = x;
-}
-
-std::vector<float>& SpicyX::GetFlatArray() 
-{
-  return flatArray;  // SWIG copies it into a new C# float[]
-}
-
-void SpicyX::GetFlatArrayRaw(float* outArray) const {
-    std::copy(flatArray.begin(), flatArray.end(), outArray);
+void SpicyX::GetFlatArrayRaw(float* outArray1) const {
+    std::copy(flatArray.begin(), flatArray.end(), outArray1);
 }
 
 int SpicyX::GetFlatArraySize() const {
@@ -55,3 +40,8 @@ int SpicyX::GetFlatArraySize() const {
 void SpicyX::InitFlatArray(int n){
   flatArray = std::vector<float>(n, 0.0f);
 }
+
+/*
+
+
+*/

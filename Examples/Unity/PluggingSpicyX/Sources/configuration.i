@@ -11,7 +11,8 @@
 %include "typemaps.i"
 %include "arrays_csharp.i"
 
-%apply float OUTPUT[] { float* outArray };
+%apply float INOUT[] { float* outArray1 };
+%apply int INOUT[] { int* outArray2 };
 
 %include "spicytech.hpp"
 
