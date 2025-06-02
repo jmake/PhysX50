@@ -19,7 +19,7 @@
 
 #include "volumeSkinning.h"
 #include "volumeRender.hpp"
-//#include "../snippetdeformablesurfaceskinning/SnippetDeformableSurfaceSkinning.h"
+#include "task/PxTask.h"
 
 #define MAX_NUM_ACTOR_SHAPES	128
 
@@ -46,6 +46,34 @@ bool interactive = true; // -> 'True' during Rendering
 
 //static std::vector<int> triangles; 
 //static std::vector<float> mpositionsinvmass; 
+
+static int itime = 0; 
+
+class CallbackFinishTask : public PxLightCpuTask
+{
+	SnippetUtils::Sync* mSync;
+public:
+	CallbackFinishTask(){ mSync = SnippetUtils::syncCreate(); }
+
+	virtual void release()
+	{
+		PxLightCpuTask::release();
+		SnippetUtils::syncSet(mSync);
+	}
+
+	void reset() { SnippetUtils::syncReset(mSync); }
+
+	void wait() { SnippetUtils::syncWait(mSync); }
+
+	virtual void run() { /*Do nothing - release the sync in the release method for thread-safety*/}
+
+	virtual const char* getName() const { return "CallbackFinishTask"; }
+} 
+callbackFinishTask;
+
+
+
+
 
 template<typename T>
 class HostAndDeviceBuffer
@@ -429,7 +457,7 @@ int initPhysics(bool /*interactive*/)
 }
 
 
-void StepPhysics(bool /*interactive*/, 
+int StepPhysics(bool /*interactive*/, 
 	int iteration, 
 	std::vector< std::vector<int> >& Triangles, 
 	std::vector< std::vector<float> >& PositionsInvMass 
@@ -438,8 +466,13 @@ void StepPhysics(bool /*interactive*/,
 	const PxReal dt = 1.0f / 60.f;
 
 	gScene->simulate(dt);
-	gScene->fetchResults(true);
 
+//	if( !gScene->checkResults() ) return; 
+
+	bool ready = gScene->fetchResults(true);
+
+if(ready)
+{ 
 	Triangles.clear(); 
 	PositionsInvMass.clear(); 
 	for (PxU32 ibody = 0; ibody < gDeformableVolumes.size(); ibody++)
@@ -463,23 +496,14 @@ void StepPhysics(bool /*interactive*/,
 		<<"nbVertices:"<< mpositionsinvmass.size() / 4 <<" "
 		<<"nTriangles:"<<  nTriangles <<" ("<< triangles.size() / 3 <<") "
 		<< std::endl;
+	} //for 
 
+	itime++; 
+} // ready 
 
-//static_assert(sizeof(physx::PxVec4) == sizeof(float) * 4, "PxVec4 must be 4 floats.");
-//const float* flatPtr = reinterpret_cast<const float*>(mPositionsInvMass);
+	return itime; 
+} // StepPhysics
 
-/*
-for (int i = 0; i < flatArray.size() / 4; ++i)
-{
-    float* v = &flatArray[i * 4];
-    printf("Vertex %u: %f %f %f %f\n", i, v[0], v[1], v[2], v[3]);
-	// Vertex   0: 1.250000 7.747282 -1.250000 1.572864
-	// Vertex 556: 0.098849 12.586310 -0.001949 0.080996
-}
-*/
-
-	}
-}
 
 void cleanupPhysics(bool /*interactive*/)
 {

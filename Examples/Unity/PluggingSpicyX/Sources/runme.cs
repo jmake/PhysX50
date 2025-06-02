@@ -28,18 +28,19 @@ public class runme
 
     for(int i=0; i<69; i++) 
     {
-      obj.Step(i);
+      int itime = obj.Step(i);
+      Console.WriteLine("[Tester] itime: " + itime);
       
       int nBodies = obj.nBodies(); 
-      Console.WriteLine("[Tester] nBodies: " + nBodies);
+      //Console.WriteLine("[Tester] nBodies: " + nBodies);
 
       for(int iBody=0; iBody< nBodies; iBody++)
       {
         int nbVertices = obj.PositionsInvMassSize(iBody);
-        Console.WriteLine("[Tester] nbVertices: " + nbVertices / 4);
+        //Console.WriteLine("[Tester] nbVertices: " + nbVertices / 4);
 
         int nTriangles = obj.TrianglesSize(iBody); 
-        Console.WriteLine("[Tester] nTriangles: " + nTriangles / 3);
+        //Console.WriteLine("[Tester] nTriangles: " + nTriangles / 3);
 
         float[] vertices = new float[nbVertices];
         obj.PositionsInvMassGet(iBody, vertices); 
@@ -48,10 +49,10 @@ public class runme
         obj.TrianglesGet(iBody, triangles); 
 
         float[] slice1 = vertices.Skip(2).Take(3).ToArray();
-        Console.WriteLine(string.Join(", ", slice1)); 
+        //Console.WriteLine(string.Join(", ", slice1)); 
 
         int[] slice2 = triangles.Skip(3).Take(3).ToArray();
-        Console.WriteLine(string.Join(", ", slice2)); 
+        //Console.WriteLine(string.Join(", ", slice2)); 
       } // iBody 
 
     } // itime  

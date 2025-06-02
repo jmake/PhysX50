@@ -13,7 +13,7 @@ float PhysxVersion();
 int RenderInit(); 
 void RenderFinish(); 
 
-void StepPhysics(bool /*interactive*/, 
+int StepPhysics(bool /*interactive*/, 
                     int iteration, 
 	                std::vector< std::vector<int> >& Triangles, 
                     std::vector< std::vector<float> >& PositionsInvMass
@@ -41,13 +41,15 @@ class SpicyX
     }
 
 
-    void Step(int i)
+    int Step(int i)
     {
-        StepPhysics(false, i, Triangles, PositionsInvMass);
+        int itime = StepPhysics(false, i, Triangles, PositionsInvMass);
 		std::cout<<"[SpicyX]"
         <<" nTriangles:" << Triangles.size()
 		<<" nPositionsInvMass:" << PositionsInvMass.size()
         << std::endl;
+
+        return itime; 
     }
 
 

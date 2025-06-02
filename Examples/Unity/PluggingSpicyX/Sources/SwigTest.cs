@@ -39,7 +39,8 @@ public class SwigTest : MonoBehaviour
 
         for(int i=0; i<69; i++) 
         {
-            obj.Step(i);
+            int itime = obj.Step(i);
+            Debug.Log("[Tester] itime: " + itime);
             
             int nBodies = obj.nBodies(); 
             Debug.Log("[Tester] nBodies: " + nBodies);
