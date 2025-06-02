@@ -12,16 +12,55 @@ public class SpicyXPlugging : MonoBehaviour
     public int nSteps = 100; 
     public int istep = 0; 
 
+    VertexVisualizer[] visualizers; 
+
+    void VisualizerTest()
+    {
+        GameObject go = new GameObject("VertexVisualizer");
+        VertexVisualizer visualizer = go.AddComponent<VertexVisualizer>();
+
+        int nb = 4;
+        visualizer.vertices = new float[nb * 4];
+
+        Vector3[] squareVerts = new Vector3[]
+        {
+            new Vector3(0, 0, 0),   // 0: bottom left
+            new Vector3(1, 0, 0),   // 1: bottom right
+            new Vector3(0, 1, 0),   // 2: top left
+            new Vector3(1, 1, 0)    // 3: top right
+        };
+
+        for (int i = 0; i < nb; i++)
+        {
+            visualizer.vertices[i * 4 + 0] = squareVerts[i].x;
+            visualizer.vertices[i * 4 + 1] = squareVerts[i].y;
+            visualizer.vertices[i * 4 + 2] = squareVerts[i].z;
+            visualizer.vertices[i * 4 + 3] = 1f; // mass
+        }
+
+        // Define triangle indices (2 triangles: [0,1,3], [0,3,2])
+        visualizer.triangles = new int[]{0, 1, 3, 0, 3, 2};
+    }
+
+
     void Start()
     {
-        //if(sx) delete sx; 
+        VisualizerTest(); 
+
         sx = new SpicyX();
-        //sx.Finish(); // Crash!!
 
         int nDeformables = sx.Init();
         Debug.Log("[Tester] nDeformables: " + nDeformables);
 
-        //for(int i=0; i < nSteps; i++) Evolve(i); sx.Finish();
+        visualizers = new VertexVisualizer[nDeformables];
+        for (int i = 0; i < visualizers.Length; i++)
+        {
+            //GameObject go = new GameObject("Visualizer_" + i);
+            visualizers[i] = new GameObject("Visualizer_" + i).AddComponent<VertexVisualizer>();
+        }
+
+Debug.Log( visualizers.Length );
+
     }
 
 
@@ -42,7 +81,7 @@ public class SpicyXPlugging : MonoBehaviour
     void Evolve(int i) 
     {
         int itime = sx.Step(i);
-        Debug.Log("[Tester] itime: " + itime + " i: " + i);
+        //Debug.Log("[Tester] itime: " + itime + " i: " + i);
         
         int nBodies = sx.nBodies(); 
         //Debug.Log("[Tester] nBodies: " + nBodies);
@@ -58,8 +97,17 @@ public class SpicyXPlugging : MonoBehaviour
             float[] vertices = new float[nbVertices];
             sx.PositionsInvMassGet(iBody, vertices); 
 
+            if (visualizers[iBody].vertices == null || visualizers[iBody].vertices.Length != vertices.Length)
+                visualizers[iBody].vertices = new float[nbVertices];
+            Array.Copy(vertices, visualizers[iBody].vertices, vertices.Length);
+
+
             int[] triangles = new int[nTriangles];
             sx.TrianglesGet(iBody, triangles); 
+            if (visualizers[iBody].triangles == null || visualizers[iBody].triangles.Length != triangles.Length)
+                visualizers[iBody].triangles = new int[nTriangles];
+            Array.Copy(triangles, visualizers[iBody].triangles, triangles.Length);
+
 
             float[] slice1 = vertices.Skip(2).Take(3).ToArray();
             //Debug.Log(string.Join(", ", slice1)); 
