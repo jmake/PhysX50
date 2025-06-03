@@ -21,15 +21,36 @@ public class VertexVisualizer : MonoBehaviour
         mesh.name = "GeneratedMesh";
         GetComponent<MeshFilter>().mesh = mesh;
 
-        var redMaterial = new Material(Shader.Find("Unlit/Color"));
-        redMaterial.color = Color.red;
-        redMaterial.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
-
         var renderer = GetComponent<MeshRenderer>();
-        renderer.material = redMaterial;
+        renderer.material = LoadMaterial();
         
         UpdateMesh();
     }
+
+
+    Material LoadMaterial()
+    {
+        // Path relative to a "Resources" folder (you must move your material into one)
+        return Resources.Load<Material>("GlowingGold"); // Blue, GlowingGold, Red, ShinyDarkBlue GreyTransparent
+    }
+
+    Material SimpleMaterialCreate() 
+    {
+        var material = new Material(Shader.Find("Unlit/Color"));
+        material.color = Color.red;
+        return material; 
+    }
+
+
+    Material CreatePlasticMaterial()
+    {
+        var material = new Material(Shader.Find("Standard"));
+        material.color = new Color(1f, 0.2f, 0.1f);  // plastic-like red
+        material.SetFloat("_Glossiness", 0.8f);      // smooth, shiny surface
+        material.SetFloat("_Metallic", 0.0f);        // plastic is non-metallic
+        return material;
+    }
+
 
     void FixedUpdate()
     {

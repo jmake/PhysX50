@@ -12,41 +12,34 @@ public class SpicyXPlugging : MonoBehaviour
     public int nSteps = 100; 
     public int istep = 0; 
 
+    bool runner = false;  
+
     VertexVisualizer[] visualizers; 
 
-    void VisualizerTest()
+
+    void OnDisable()
     {
-        GameObject go = new GameObject("VertexVisualizer");
-        VertexVisualizer visualizer = go.AddComponent<VertexVisualizer>();
-
-        int nb = 4;
-        visualizer.vertices = new float[nb * 4];
-
-        Vector3[] squareVerts = new Vector3[]
-        {
-            new Vector3(0, 0, 0),   // 0: bottom left
-            new Vector3(1, 0, 0),   // 1: bottom right
-            new Vector3(0, 1, 0),   // 2: top left
-            new Vector3(1, 1, 0)    // 3: top right
-        };
-
-        for (int i = 0; i < nb; i++)
-        {
-            visualizer.vertices[i * 4 + 0] = squareVerts[i].x;
-            visualizer.vertices[i * 4 + 1] = squareVerts[i].y;
-            visualizer.vertices[i * 4 + 2] = squareVerts[i].z;
-            visualizer.vertices[i * 4 + 3] = 1f; // mass
-        }
-
-        // Define triangle indices (2 triangles: [0,1,3], [0,3,2])
-        visualizer.triangles = new int[]{0, 1, 3, 0, 3, 2};
+        VisualizersClear(); 
     }
 
 
     void Start()
     {
-        VisualizerTest(); 
+        VisualizersCreate(); 
+    }
 
+
+    void FixedUpdate()
+    {
+        // Time.fixedDeltaTime
+        VisualizersEvolve(++istep); 
+    }
+
+    void VisualizersCreate()
+    {
+        if(sx != null) return;
+        
+        //VisualizerTest(); 
         sx = new SpicyX();
 
         int nDeformables = sx.Init();
@@ -58,28 +51,43 @@ public class SpicyXPlugging : MonoBehaviour
             //GameObject go = new GameObject("Visualizer_" + i);
             visualizers[i] = new GameObject("Visualizer_" + i).AddComponent<VertexVisualizer>();
         }
-
-Debug.Log( visualizers.Length );
-
     }
 
 
-    void OnDisable()
+    void VisualizersClear()
     {
-        sx.Finish(); // Crash??
+        if (visualizers != null)
+        {
+            for (int i = 0; i < visualizers.Length; i++)
+            {
+                if (visualizers[i] != null)
+                {
+                    Destroy(visualizers[i].gameObject);
+                }
+            }
+
+            visualizers = null; // release the reference
+        }
+
+        if(sx != null) 
+        {
+            sx.Finish(); // Crash??
+            sx = null; 
+        }
         istep = 0; 
+
+        runner = false; 
     }
 
 
-    void FixedUpdate()
+    void VisualizersEvolve(int i) 
     {
-        // Time.fixedDeltaTime
-        Evolve(++istep); // Crash??
-    }
+        if(sx == null) 
+        {
+            Debug.Log("[VisualizersEvolve] 'sx == null'");
+            return; 
+        }
 
-
-    void Evolve(int i) 
-    {
         int itime = sx.Step(i);
         //Debug.Log("[Tester] itime: " + itime + " i: " + i);
         
@@ -129,7 +137,6 @@ Debug.Log( visualizers.Length );
         for(int i=0; i<69; i++) 
         {
             obj.Step(i);
-            
             int nBodies = obj.nBodies(); 
             Debug.Log("[Tester] nBodies: " + nBodies);
 
@@ -146,17 +153,41 @@ Debug.Log( visualizers.Length );
 
                 int[] triangles = new int[nTriangles];
                 obj.TrianglesGet(iBody, triangles); 
-
-                float[] slice1 = vertices.Skip(2).Take(3).ToArray();
-                Debug.Log(string.Join(", ", slice1)); 
-
-                int[] slice2 = triangles.Skip(3).Take(3).ToArray();
-                Debug.Log(string.Join(", ", slice2)); 
             } // iBody 
 
         } // itime  
 
         obj.Finish();
     } // Main 
+
+
+    void VisualizerTest()
+    {
+        GameObject go = new GameObject("VertexVisualizer");
+        VertexVisualizer visualizer = go.AddComponent<VertexVisualizer>();
+
+        int nb = 4;
+        visualizer.vertices = new float[nb * 4];
+
+        Vector3[] squareVerts = new Vector3[]
+        {
+            new Vector3(0, 0, 0),   // 0: bottom left
+            new Vector3(1, 0, 0),   // 1: bottom right
+            new Vector3(0, 1, 0),   // 2: top left
+            new Vector3(1, 1, 0)    // 3: top right
+        };
+
+        for (int i = 0; i < nb; i++)
+        {
+            visualizer.vertices[i * 4 + 0] = squareVerts[i].x;
+            visualizer.vertices[i * 4 + 1] = squareVerts[i].y;
+            visualizer.vertices[i * 4 + 2] = squareVerts[i].z;
+            visualizer.vertices[i * 4 + 3] = 1f; // mass
+        }
+
+        // Define triangle indices (2 triangles: [0,1,3], [0,3,2])
+        visualizer.triangles = new int[]{0, 1, 3, 0, 3, 2};
+    }
+
 
 }
