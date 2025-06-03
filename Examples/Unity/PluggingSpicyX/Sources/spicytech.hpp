@@ -7,35 +7,46 @@
 
 
 int CudaVersion(); 
-int SpicyTest(); 
 float PhysxVersion(); 
 
-int RenderInit(); 
-void RenderFinish(); 
+//int SpicyTest(); 
+//int RenderInit(); 
+//void RenderFinish(); 
 
-int StepPhysics(bool /*interactive*/, 
+int InitPhysics(bool); 
+void CleanupPhysics(bool); 
+
+int StepPhysics(
+                    bool, 
                     int iteration, 
 	                std::vector< std::vector<int> >& Triangles, 
                     std::vector< std::vector<float> >& PositionsInvMass
                 ); 
 
+void keyPress(unsigned char key); 
+
+
 class SpicyX 
 {
-    public:
-    SpicyX();
-
+    public :
+    SpicyX()
+    {
+        interactive = false; 
+    };
+/*
     int GetFlatArraySize() const;
     void InitFlatArray(int n); 
     void GetFlatArrayRaw(float* outArray1) const;
-
+*/
     void Finish()
     {
-        RenderFinish(); 
+        CleanupPhysics(interactive);
     }
+
 
     int Init() 
     {
-        nDeformables = RenderInit(); 
+        nDeformables = InitPhysics(interactive); 
 		std::cout<<"[SpicyX] nDeformables:" << nDeformables << std::endl;
         return nDeformables; 
     }
@@ -43,7 +54,7 @@ class SpicyX
 
     int Step(int i)
     {
-        int itime = StepPhysics(false, i, Triangles, PositionsInvMass);
+        int itime = StepPhysics(interactive, i, Triangles, PositionsInvMass);
 		std::cout<<"[SpicyX]"
         <<" nTriangles:" << Triangles.size()
 		<<" nPositionsInvMass:" << PositionsInvMass.size()
@@ -75,13 +86,20 @@ class SpicyX
     {
         return Triangles[i].size(); 
     }
-    
+
+
     void TrianglesGet(int i, int* outArray2)
     {
         std::copy(Triangles[i].begin(), Triangles[i].end(), outArray2);
     }    
 
-    
+
+    void KeyPress(int key) 
+    {
+        keyPress(static_cast<unsigned char>(key));
+    }
+
+
     private:
         std::vector<float> flatArray; 
 	    std::vector< std::vector<int> > Triangles; 
@@ -90,4 +108,6 @@ class SpicyX
         int nDeformables; 
         int nTriangles; 
         int nbVertices; 
+
+        bool interactive; 
 };

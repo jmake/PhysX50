@@ -26,7 +26,7 @@ int CudaVersion()
   return runtimeVersion; 
 }
 
-
+/*
 SpicyX::SpicyX() {}
 
 void SpicyX::GetFlatArrayRaw(float* outArray1) const {
@@ -40,8 +40,4 @@ int SpicyX::GetFlatArraySize() const {
 void SpicyX::InitFlatArray(int n){
   flatArray = std::vector<float>(n, 0.0f);
 }
-
-/*
-
-
 */

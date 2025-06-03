@@ -38,7 +38,7 @@ function COMPILATION
     New-Item -ItemType Directory -Path $FolderName 
 
     Set-Location -Path $FolderName
-    cp ${EXECUTION_PATH}\Sources\*.* . 
+    cp ${EXECUTION_PATH}\Sources\* . 
 
 #Set-Location -Path ${EXECUTION_PATH};exit 
 

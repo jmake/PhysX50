@@ -49,6 +49,7 @@ bool interactive = true; // -> 'True' during Rendering
 
 static int itime = 0; 
 
+/*
 class CallbackFinishTask : public PxLightCpuTask
 {
 	SnippetUtils::Sync* mSync;
@@ -65,14 +66,19 @@ public:
 
 	void wait() { SnippetUtils::syncWait(mSync); }
 
-	virtual void run() { /*Do nothing - release the sync in the release method for thread-safety*/}
+	virtual void run() { }
 
 	virtual const char* getName() const { return "CallbackFinishTask"; }
 } 
 callbackFinishTask;
+*/
 
+static bool			gPause			= false;
+static bool			gOneFrame		= false;
+static const PxU32	gScenarioCount	= 2;
+static PxU32		gScenario		= 0;
 
-
+PxTolerancesScale scale;
 
 
 template<typename T>
@@ -390,11 +396,113 @@ static void createDeformableVolumes(const PxCookingParams& params)
 	gScene->setDeformableVolumeGpuPostSolveCallback(postSolveCallback);
 }
 
-int initPhysics(bool /*interactive*/)
+//---------------------------------------------------------------------------//
+PxSceneDesc sceneDescCreate() 
+{
+	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
+
+	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+
+	if (!sceneDesc.cudaContextManager)
+		sceneDesc.cudaContextManager = gCudaContextManager;
+
+	sceneDesc.flags |= PxSceneFlag::eENABLE_GPU_DYNAMICS;
+	sceneDesc.flags |= PxSceneFlag::eENABLE_PCM;
+
+	//PxU32 numCores = SnippetUtils::getNbPhysicalCores();
+	//gDispatcher = PxDefaultCpuDispatcherCreate(numCores == 0 ? 0 : numCores - 1);
+	sceneDesc.cpuDispatcher = gDispatcher;
+	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
+
+	sceneDesc.broadPhaseType = PxBroadPhaseType::eGPU;
+	sceneDesc.gpuMaxNumPartitions = 8;
+
+	sceneDesc.solverType = PxSolverType::eTGS;
+
+	return sceneDesc; 
+}
+
+
+void gSceneInit() //(PxScene* scene) 
+{
+	// static PxScene* gScene = NULL;
+	gScene = gPhysics->createScene( sceneDescCreate() );
+
+	PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
+	if (pvdClient)
+	{
+		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+	}
+}
+
+
+PxRigidStatic* groundPlaneCreate()
+{
+	PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
+	return 	groundPlane; 
+}
+
+
+static void initScene( 	PxTolerancesScale scale )
+{
+	gSceneInit();
+
+	gScene->addActor( *groundPlaneCreate() ); 
+
+	PxCookingParams params(scale);
+	params.meshWeldTolerance = 0.001f;
+	params.meshPreprocessParams = PxMeshPreprocessingFlags(PxMeshPreprocessingFlag::eWELD_VERTICES);
+	params.buildTriangleAdjacencies = false;
+	params.buildGPUData = true;
+
+	createDeformableVolumes(params);
+} 
+
+
+static void releaseScene()
+{
+	PX_RELEASE(gScene);
+	itime = 0; 
+}
+
+
+void keyPress(unsigned char key)
+{
+	if(key == 'p' || key == 'P') gPause = !gPause;
+
+	if(key == 'o' || key == 'O')
+	{
+		gPause = true;
+		gOneFrame = true;
+	}
+
+	if(gScene)
+	{
+		if(key >= 1 && key <= gScenarioCount)
+		{
+			gScenario = key - 1;
+			releaseScene();
+			initScene( scale );
+		}
+
+		if(key == 'r' || key == 'R')
+		{
+			releaseScene();
+			initScene( scale );
+		}
+	}
+}
+
+
+//---------------------------------------------------------------------------//
+int InitPhysics(bool /*interactive*/)
 {
     std::cout<<"[SpicyX] initPhysics"<<std::endl;
 
 	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+
 	gPvd = PxCreatePvd(*gFoundation);
 	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
 	gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
@@ -408,17 +516,19 @@ int initPhysics(bool /*interactive*/)
 		printf("Failed to initialize cuda context.\n");
 	}
 
-	PxTolerancesScale scale;
+//	PxTolerancesScale scale;
 	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, scale, true, gPvd);
 	PxInitExtensions(*gPhysics, gPvd);
-
+/*
 	PxCookingParams params(scale);
 	params.meshWeldTolerance = 0.001f;
 	params.meshPreprocessParams = PxMeshPreprocessingFlags(PxMeshPreprocessingFlag::eWELD_VERTICES);
 	params.buildTriangleAdjacencies = false;
 	params.buildGPUData = true;
-
+*/
+/*
 	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
+
 	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
 
 	if (!sceneDesc.cudaContextManager)
@@ -438,6 +548,10 @@ int initPhysics(bool /*interactive*/)
 	sceneDesc.solverType = PxSolverType::eTGS;
 
 	gScene = gPhysics->createScene(sceneDesc);
+*/
+/*
+	gScene = gPhysics->createScene( sceneDescCreate() );
+
 	PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
 	if (pvdClient)
 	{
@@ -445,15 +559,29 @@ int initPhysics(bool /*interactive*/)
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
+*/
+/*
+	gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.f);
+	PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
+*/
+	PxU32 numCores = SnippetUtils::getNbPhysicalCores();
+	gDispatcher = PxDefaultCpuDispatcherCreate(numCores == 0 ? 0 : numCores - 1);
 
 	gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.f);
 
-	PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
-	gScene->addActor(*groundPlane);
-
-	createDeformableVolumes(params);
-
+	initScene( scale );
 	return gDeformableVolumes.size(); 
+}
+
+
+bool stepPhysics() //(bool /*interactive*/)
+{
+	if (gPause && !gOneFrame) return false;
+	gOneFrame = false;
+
+	const PxReal dt = 1.0f / 60.f;
+	gScene->simulate(dt);
+	return gScene->fetchResults(true);
 }
 
 
@@ -463,58 +591,57 @@ int StepPhysics(bool /*interactive*/,
 	std::vector< std::vector<float> >& PositionsInvMass 
 )
 {
+/*
 	const PxReal dt = 1.0f / 60.f;
 
 	gScene->simulate(dt);
-
-//	if( !gScene->checkResults() ) return; 
-
 	bool ready = gScene->fetchResults(true);
+*/
+	bool ready = stepPhysics(); 
+	if(ready)
+	{ 
+		Triangles.clear(); 
+		PositionsInvMass.clear(); 
+		for (PxU32 ibody = 0; ibody < gDeformableVolumes.size(); ibody++)
+		{
+			DeformableVolume* dv = &gDeformableVolumes[ibody];
 
-if(ready)
-{ 
-	Triangles.clear(); 
-	PositionsInvMass.clear(); 
-	for (PxU32 ibody = 0; ibody < gDeformableVolumes.size(); ibody++)
-	{
-		DeformableVolume* dv = &gDeformableVolumes[ibody];
+			std::vector<float> mpositionsinvmass;
+			mpositionsinvmass = dv->copyDeformedVerticesFromGPU(iteration, ibody);
+			PositionsInvMass.push_back(mpositionsinvmass); 
 
-		std::vector<float> mpositionsinvmass;
-		mpositionsinvmass = dv->copyDeformedVerticesFromGPU(iteration, ibody);
-		PositionsInvMass.push_back(mpositionsinvmass); 
+			PxVec4* positionsInvMass = dv->mPositionsInvMass; 
+			PxDeformableVolume* deformableVolume = dv->mDeformableVolume; 
 
-		PxVec4* positionsInvMass = dv->mPositionsInvMass; 
-		PxDeformableVolume* deformableVolume = dv->mDeformableVolume; 
+			std::vector<int> triangles; 
+			int nTriangles = DeformableVolumeGetConnectivity(dv->mDeformableVolume, triangles); 
+			Triangles.push_back(triangles); 
 
-		std::vector<int> triangles; 
-		int nTriangles = DeformableVolumeGetConnectivity(dv->mDeformableVolume, triangles); 
-		Triangles.push_back(triangles); 
+			std::cout<<"[SpicyX] "
+			<<"Iteration:"<< iteration <<" "
+			<<"ibody:"<<  ibody <<" "
+			<<"nbVertices:"<< mpositionsinvmass.size() / 4 <<" "
+			<<"nTriangles:"<<  nTriangles <<" ("<< triangles.size() / 3 <<") "
+			<< std::endl;
+		} //for 
 
-		std::cout<<"[SpicyX] "
-		<<"Iteration:"<< iteration <<" "
-		<<"ibody:"<<  ibody <<" "
-		<<"nbVertices:"<< mpositionsinvmass.size() / 4 <<" "
-		<<"nTriangles:"<<  nTriangles <<" ("<< triangles.size() / 3 <<") "
-		<< std::endl;
-	} //for 
-
-	itime++; 
-} // ready 
+		itime++; 
+	} // ready 
 
 	return itime; 
 } // StepPhysics
 
 
-void cleanupPhysics(bool /*interactive*/)
+void CleanupPhysics(bool /*interactive*/)
 {
     std::cout<<"[SpicyX] cleanupPhysics"<<std::endl;
 
 	for (PxU32 i = 0; i < gDeformableVolumes.size(); i++) gDeformableVolumes[i].release();
 	gDeformableVolumes.reset();
-
 	gSkinnedMeshes.reset();
 
-	PX_RELEASE(gScene);
+	releaseScene(); //PX_RELEASE(gScene);
+
 	PX_RELEASE(gDispatcher);
 	PX_RELEASE(gPhysics);
 	if (gPvd)
@@ -528,9 +655,10 @@ void cleanupPhysics(bool /*interactive*/)
 	PX_RELEASE(gCudaContextManager);
 	PX_RELEASE(gFoundation);
 
-	printf("[SpicyX] SnippetDeformableVolumeSkinning done.\n");
+	printf("[SpicyX] CleanupPhysics Done!\n");
 }
 
+/*
 int SpicyTest()
 {
 	interactive = false; // -> 'True' during Rendering 
@@ -538,13 +666,12 @@ int SpicyTest()
 	initPhysics(interactive);
 
 	int i=-1;
-//	for (i = 0; i < frameCount; i++) StepPhysics(interactive, i);
 	cleanupPhysics(interactive);
 
 	return i;
 }
-
-
+*/
+/*
 void RenderFinish()
 {
 	cleanupPhysics(interactive);
@@ -555,8 +682,8 @@ int RenderInit() // RenderLoop
 {
 	return initPhysics(interactive);
 }
-
-
+*/
+/*
 void renderActors(PxRigidActor** actors, const PxU32 numActors, int itime) 
 {
 	std::vector<int> Active; 
@@ -570,10 +697,9 @@ void renderActors(PxRigidActor** actors, const PxU32 numActors, int itime)
   	}
 	
 }
+*/
 
-
-
-
+/*
 void RenderStep(int iteration) // RenderCallback
 {
 //	StepPhysics(interactive, iteration);
@@ -581,8 +707,7 @@ void RenderStep(int iteration) // RenderCallback
 	PxScene* scene;
 	PxGetPhysics().getScenes(&scene,1);
 	PxU32 nbActors = scene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC);
-
-std::cout<<"[SpicyX] nbActors:" << nbActors <<std::endl;
+	std::cout<<"[SpicyX] nbActors:" << nbActors <<std::endl;
 	
 	if(nbActors)
 	{
@@ -601,3 +726,4 @@ std::cout<<"[SpicyX] nbActors:" << nbActors <<std::endl;
 	}
 
 }
+*/
