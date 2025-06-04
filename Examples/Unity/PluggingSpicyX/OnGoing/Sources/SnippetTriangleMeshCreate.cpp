@@ -379,6 +379,31 @@ int snippetMain(int, const char*const*)
 
 //-----------------------------------------------------------------//
 //-----------------------------------------------------------------//
+std::vector<float> LoadFileFlat(const char* input, int* rows, int* cols)
+{
+    std::string fname(input);
+
+    std::vector< std::vector<float> > array;
+    LoadFile(fname, array, false);
+
+    int r = static_cast<int>(array.size());
+    int c = r > 0 ? static_cast<int>(array[0].size()) : 0;
+
+    if (rows) *rows = r;
+    if (cols) *cols = c;
+
+    std::vector<float> flat;
+    flat.reserve(r * c);
+
+    for (const auto& row : array) {
+        flat.insert(flat.end(), row.begin(), row.end());
+    }
+
+    return flat;
+}
+
+
+
 PxTriangleMeshGeometry
 createBunnyMesh(std::string fcoords, std::string ftrias, PxPhysics *physics, bool inserted) //, PxCooking *cooking)
 {
@@ -429,6 +454,9 @@ createBunnyMesh(std::string fcoords, std::string ftrias, PxPhysics *physics, boo
 	PxTriangleMeshGeometry geom(mesh);
 	return geom; 
 }
+
+
+
 
 
 PxTriangleMeshGeometry 

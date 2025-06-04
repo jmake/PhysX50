@@ -3,6 +3,9 @@ using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 
+using System.IO;
+using System.Collections.Generic;
+
 using UnityEngine;
 
 
@@ -12,9 +15,62 @@ public class SpicyXPlugging : MonoBehaviour
     public int nSteps = 100; 
     public int istep = 0; 
 
-//    bool runner = false;  
 
     VertexVisualizer[] visualizers; 
+
+    List<String> files = new List<String>(); 
+    List<MeshCreator> meshCreators = new List<MeshCreator>();
+
+
+    void Awake()
+    {
+        files.Add("teddy"); 
+        files.Add("buda2"); 
+        files.Add("teapot"); 
+        //files.Add("simplest"); 
+
+        foreach (var fname in files) 
+        {
+            GameObject o = new GameObject( "Mesh_" + fname.ToUpper() ); 
+            MeshCreator mc = o.AddComponent<MeshCreator>();
+
+            mc.Init();  
+            mc.Load($"{fname}_faces.dat", $"{fname}_verts.dat");
+            mc.UpdateMesh(); 
+            meshCreators.Add(mc); 
+        }
+
+    }
+
+
+    List<List<T>> 
+    LoadFileFlat<T>(string filePath)
+    {
+        filePath = Path.GetFullPath(filePath);
+
+        List<List<T>> matrix = new List<List<T>>();
+        if( !File.Exists(filePath) ) 
+        {
+            Debug.Log("[LoadFileFlat] filePath:'" + filePath +"' no found!"); 
+            return matrix;
+        } 
+
+        int rows = 0, cols = 0;
+        FloatVector flatData = ModuleName.LoadFileFlat(filePath, out rows, out cols);
+
+        for (int i = 0; i < rows; i++) {
+            List<T> row = new List<T>();
+            for (int j = 0; j < cols; j++) 
+            {
+                T u = (T)Convert.ChangeType(flatData[i * cols + j], typeof(T)); 
+                row.Add(u);
+            }
+            Debug.Log( i + ") " +string.Join(", ", row));
+            matrix.Add(row);
+        }
+
+        return matrix;
+    } // LoadFileFlatTest
 
 
     void OnDisable()

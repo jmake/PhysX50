@@ -1,5 +1,7 @@
 using System;
+using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 public class runme
@@ -21,6 +23,8 @@ public class runme
     float physx = ModuleName.PhysxVersion();
     Console.WriteLine("[Tester] PhysX Version: " + physx);
 
+    LoadFileFlatTest(); 
+/*
     SpicyX obj = new SpicyX();
 
     int nDeformables = obj.Init();
@@ -34,7 +38,7 @@ public class runme
     obj.KeyPress('o'); 
 
     obj.Finish();
-
+*/
     Console.WriteLine("[Tester] Finish");
   } // Main 
 
@@ -68,7 +72,53 @@ public class runme
       //Console.WriteLine(string.Join(", ", slice2)); 
     } // iBody 
 
-  } // itime  
+  } // VisualizersEvolve
+
+
+  static void LoadFileFlatTest()
+  {
+    string filePath = "Scripts\\teapot_faces.dat"; 
+    LoadFileFlat(filePath); 
+
+  }
+
+
+  static List<List<float>> 
+  LoadFileFlat(string filePath)
+  {
+    filePath = Path.GetFullPath(filePath);
+    Console.WriteLine("[LoadFileFlat] filePath:'" + filePath +"' "); 
+
+    List<List<float>> matrix = new List<List<float>>();
+    if( !File.Exists(filePath) ) return matrix; 
+
+    int rows = 0, cols = 0;
+    FloatVector flatData = ModuleName.LoadFileFlat(filePath, out rows, out cols);
+
+    for (int i = 0; i < rows; i++) {
+        List<float> row = new List<float>();
+        for (int j = 0; j < cols; j++) {
+            row.Add(flatData[i * cols + j]);
+        }
+        matrix.Add(row);
+    }
+
+    Console.WriteLine("[LoadFileFlat] matrix:'" + matrix.Count +"' "); 
+
+    //PrintMatrix(matrix);
+    return matrix;
+  } // LoadFileFlatTest
+
+
+  static void PrintMatrix(List<List<float>> matrix)
+  {
+      foreach (var row in matrix)
+      {
+          Console.WriteLine(string.Join(", ", row));
+      }
+
+      Console.WriteLine("matrix:" + matrix.Count ); 
+  }
 
 
 

@@ -5,6 +5,13 @@
 #include <iterator>
 #include <algorithm>
 
+
+//int FileLoader(std::string fname, std::vector< std::vector<float> > &array); 
+//std::vector<float> LoadFileFlat(const std::string& fname, int& rows, int& cols);
+//std::vector<float> LoadFileFlat(const char* input, int& rows, int& cols); 
+std::vector<float> LoadFileFlat(const char* input, int* rows, int* cols);
+
+
 int CudaVersion(); 
 float PhysxVersion(); 
 

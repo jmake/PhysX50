@@ -36,4 +36,6 @@ void GetTriangleMesh(const PxGeometry& geom,
                             std::vector< std::vector<double> >& vertices, 
                             std::vector< std::vector<int> >& faces); 
 
-    
+
+int FileLoader(std::string fname, std::vector< std::vector<float> > &array); 
+

@@ -440,7 +440,9 @@ void renderActors(PxRigidActor** actors, const PxU32 numActors, int itime)
 
 
 void rigidBodiesCreate() 
-{
+{	
+	return; 
+
 	bool inserted = true; 	
 	PxTriangleMeshGeometry geo;  
 	geo = TeddyCreate(gPhysics, inserted); 
@@ -454,6 +456,7 @@ void rigidBodiesCreate()
 
 void rigidBodiesEvolve(int iteration)
 {
+	return ; 
 
 	PxU32 nbActors = gScene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC);
 	if(nbActors)
