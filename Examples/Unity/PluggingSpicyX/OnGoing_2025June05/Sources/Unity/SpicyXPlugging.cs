@@ -60,6 +60,8 @@ public class SpicyXPlugging : MonoBehaviour
         // Time.fixedDeltaTime
         VisualizersPause(); 
         VisualizersEvolve(-1); 
+
+        //MeshCreateCube(); 
     }
 
 
@@ -245,32 +247,53 @@ public class SpicyXPlugging : MonoBehaviour
     }
 
 
-    void MeshCreateCube(SpicyX spicyX)
+    void MeshCreateCube(SpicyX spicyX=null)
     {
         int[] triangles; // = new int[]{}; 
         float[] vertices; // = new float[]{}; 
         
         Mesh mesh = obj.GetComponent<MeshFilter>().mesh;
+        if(mesh == null)
+        {
+            Debug.Log("[MeshCreate] Mesh is null!");
+            return; 
+        }
+
         int nVertices = mesh.vertices.Length; 
         int nTriangles = mesh.triangles.Length / 3;  
 
-        Debug.Log("[MeshCreateCube] Vertex count: " + nVertices);
-        Debug.Log("[MeshCreateCube] Triangle count: " + nTriangles);
-/*
+        Debug.Log("[MeshCreate] Vertex count: " + nVertices);
+        Debug.Log("[MeshCreate] Triangle count: " + nTriangles);
+
         Matrix4x4 localToWorld = obj.transform.localToWorldMatrix;
+
+        Vector3[] localVertices = mesh.vertices;
         Vector3[] worldVertices = new Vector3[localVertices.Length];
 
         for (int i = 0; i < localVertices.Length; i++)
         {
             worldVertices[i] = localToWorld.MultiplyPoint3x4(localVertices[i]);
         }
-*/
-        triangles = mesh.triangles; 
-        vertices = vertices2Array(mesh.vertices); 
+        ComputeCentroid(worldVertices); 
 
-        //spicyX.MeshAdd(vertices, vertices.Length, triangles, triangles.Length); 
+        triangles = mesh.triangles; 
+        //vertices = vertices2Array(localVertices); 
+        vertices = vertices2Array(worldVertices); 
+
+        if(spicyX == null) return; 
+
+        spicyX.MeshAdd(vertices, vertices.Length, triangles, triangles.Length); 
     }
 
+
+    Vector3 ComputeCentroid(Vector3[] vertices)
+    {
+        Vector3 sum = Vector3.zero;
+        foreach (var v in vertices) sum += v;
+        Vector3 centroid = sum / vertices.Length;
+        Debug.Log("Centroid: " + centroid);
+        return centroid;
+    }
 
     float[] vertices2Array(Vector3[] meshVertices)
     {
@@ -311,6 +334,9 @@ public class SpicyXPlugging : MonoBehaviour
             pause = !pause; 
         }
     }
+
+
+    [HideInInspector] public string something = "'spicyX.MeshAdd' works correctly, however, there is a strange segmentation fault the first time you try to run it. Upon restarting Unity, everything works relatively smoothly";
 
     public GameObject obj; 
 
