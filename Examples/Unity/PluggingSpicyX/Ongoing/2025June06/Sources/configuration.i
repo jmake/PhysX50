@@ -16,6 +16,8 @@
 
 %apply int* OUTPUT { int* rows, int* cols };
 
+%include <std_string.i>
+
 %include "spicytech.hpp"
 
 /*

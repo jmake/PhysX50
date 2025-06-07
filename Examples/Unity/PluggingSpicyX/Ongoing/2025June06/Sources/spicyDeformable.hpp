@@ -812,7 +812,8 @@ void keyPress(unsigned char key)
 void LoggerCreate(bool append) 
 {
 	//bool append = true; 
-	logger = new Logger("F:\\z2025_1\\PhysX\\PhysX50\\physx\\SpicyTech\\output.txt", append);
+	//logger = new Logger("F:\\z2025_1\\PhysX\\PhysX50\\physx\\SpicyTech\\output.txt", append);
+	logger = new Logger("spicytech.log", append);
 	logger->log("[LoggerCreate] ...");
 }
 

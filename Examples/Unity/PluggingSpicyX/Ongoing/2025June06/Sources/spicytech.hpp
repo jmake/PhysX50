@@ -32,7 +32,7 @@ class SpicyX
     public :
     SpicyX()
     {
-        LoggerCreate( false );
+        LoggerCreate( false);
         interactive = false; 
     };
 /*
