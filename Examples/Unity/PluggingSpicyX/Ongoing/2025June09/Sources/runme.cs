@@ -26,12 +26,12 @@ public class runme
     LoadFileFlatTest(); 
 
     SpicyXTestC(3); 
-/*
+
     System.Threading.Thread.Sleep(100); 
     SpicyXTestA(69); 
     System.Threading.Thread.Sleep(100); 
     SpicyXTestB(7); 
-*/
+
     Console.WriteLine("[Tester] Finish");
   } // Main 
 
