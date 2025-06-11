@@ -806,13 +806,9 @@ void LoggerCreate(bool append)
 
 //---------------------------------------------------------------------------//
 //---------------------------------------------------------------------------//
-int InitPhysics(bool /*interactive*/)
+void InitPhysics(bool /*interactive*/)
 {
-//	bool append = true; 
-//	logger = new Logger("F:\\z2025_1\\PhysX\\PhysX50\\physx\\SpicyTech\\output.txt", append);
 	logger->log("[InitPhysics] ...");
-
-//    std::cout<<"[SpicyX] initPhysics"<<std::endl;
 
 	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
@@ -884,7 +880,15 @@ int InitPhysics(bool /*interactive*/)
 
 	initScene( scale );
 
+	logger->log("[InitPhysics] hardBodies.size: "  + std::to_string( hardBodies.size() ));
+	logger->log("[InitPhysics] gDeformableVolumes.size: "  + std::to_string( gDeformableVolumes.size() ));
 	logger->log("[InitPhysics] !!");
+	//return gDeformableVolumes.size(); 
+}
+
+
+int UnityDeformablesSizeGet() 
+{
 	return gDeformableVolumes.size(); 
 }
 
@@ -955,11 +959,12 @@ int StepPhysics(bool /*interactive*/,
 		//rigidBodiesEvolve(iteration); 
 		deformableVolumesEvolve(iteration, Triangles, PositionsInvMass); 
 //		rbkObj->Update(iteration, deltaTime);
+		std::vector< std::vector<float> > poses; 
 		UnityHardUpdate(iteration, deltaTime); 
 
 		std::vector<float> position; 
-		position = UnityHardPositionGet(1); 
-		logger->log("[UnityHard] position:" + std::to_string(position[0]) + " "+ std::to_string(position[1]) + " "+ std::to_string(position[2]) + " ");
+		position = UnityHardGlobalPoseGet(0); 
+		logger->log("[UnityHard] pose : " + std::to_string(position.size()) );
 
 		position = UnityHardPositionGet(0);
 		logger->log("[UnityHard] position:" + std::to_string(position[0]) + " "+ std::to_string(position[1]) + " "+ std::to_string(position[2]) + " ");

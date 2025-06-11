@@ -12,7 +12,7 @@ void LoggerCreate(bool);
 int CudaVersion(); 
 float PhysxVersion(); 
 
-int InitPhysics(bool); 
+void InitPhysics(bool); 
 void CleanupPhysics(bool); 
 
 int StepPhysics(
@@ -30,6 +30,11 @@ void UnitySoftAdd(float* outArray1, int n1, int* outArray2, int n2);
 void UnityHardAdd(float* outArray1, int n1, int* outArray2, int n2, bool on);  
 void UnityHardPositionSet(int i, float x, float y, float z); 
 void UnityHardPositionGet(int i, float& x, float& y, float& z); 
+
+std::vector<float> UnityHardGlobalPoseGet(int ibody);  
+
+int UnityHardsSizeGet(); 
+int UnityDeformablesSizeGet();  
 
 
 class SpicyX 
@@ -49,17 +54,31 @@ public :
     }
 
 
-    int Init() 
+    void Init() 
     {
-        nDeformables = InitPhysics(interactive); 
-		std::cout<<"[SpicyX] nDeformables:" << nDeformables << std::endl;
-        return nDeformables; 
+        //nDeformables = 
+        InitPhysics(interactive); 
+		//std::cout<<"[SpicyX] nDeformables:" << nDeformables << std::endl;
+        //return nDeformables; 
+    }
+
+
+    int SoftSize()
+    {
+        return UnityDeformablesSizeGet();
+    }
+
+
+    int HardSize()
+    {
+        return UnityHardsSizeGet();
     }
 
 
     void SoftAdd(float* outArray1, int n1, int* outArray2, int n2, bool on)
     {
         UnitySoftAdd(outArray1, n1, outArray2, n2); 
+        nDeformables++; 
     }
 
 
@@ -134,16 +153,29 @@ public :
     }
 
 
+    void GlobalPoseGet(int ibody, float* outArray1, float* outArray3)
+    {
+        if( (ibody < 0) || (ibody > nRigidBodies) ) return; 
+
+        std::vector<float> array = UnityHardGlobalPoseGet(ibody); 
+        if(array.size() != 7) return; 
+
+        std::copy(array.begin(), array.begin() + 3, outArray1);
+        std::copy(array.begin()+3, array.end(), outArray3);
+    }
+
+
     private:
         std::vector<float> flatArray; 
 	    std::vector< std::vector<int> > Triangles; 
         std::vector< std::vector<float> > PositionsInvMass; 
-               
+
+        bool interactive; 
+
         int nDeformables; 
         int nTriangles; 
         int nbVertices; 
 
-        bool interactive; 
 
         int nRigidBodies; 
 };

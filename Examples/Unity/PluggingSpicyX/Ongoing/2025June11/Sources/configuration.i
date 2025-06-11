@@ -13,6 +13,7 @@
 
 %apply int INOUT[] { int* outArray2 };
 %apply float INOUT[] { float* outArray1 };
+%apply float INOUT[] { float* outArray3 };
 
 %apply int* OUTPUT { int* rows, int* cols };
 

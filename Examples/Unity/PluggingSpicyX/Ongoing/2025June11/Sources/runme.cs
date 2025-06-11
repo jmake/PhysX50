@@ -26,6 +26,7 @@ public class runme
     LoadFileFlatTest(); 
 
     SpicyXTestC(3); 
+
     System.Threading.Thread.Sleep(100); 
     SpicyXTestA(69); 
     System.Threading.Thread.Sleep(100); 
@@ -40,7 +41,9 @@ public class runme
     using (SpicyX obj = new SpicyX(true))
     {
       MeshCreateHard(obj); 
-      int nDeformables = obj.Init();
+      obj.Init();
+      int nRigids = obj.HardSize(); 
+      int nDeformables = obj.SoftSize(); 
       Console.WriteLine("[Tester] nDeformables: " + nDeformables);
 
       int ibody = 0; 
@@ -54,6 +57,12 @@ public class runme
       obj.PositionGet(ibody, position); 
       Console.WriteLine("[Tester] position: " + position[0] +" "+ position[1] +" "+ position[2]);
 
+      float[] p = {0.0f, 0.0f, 0.0f};
+      float[] q = {0.0f, 0.0f, 0.0f, 0.0f};
+      obj.GlobalPoseGet(ibody, p, q); 
+      Console.WriteLine("[Tester] pose.p: " + p[0] +" "+ p[1] +" "+ p[2]);
+      Console.WriteLine("[Tester] pose.q: " + q[0] +" "+ q[1] +" "+ q[2] +" "+ q[3]);
+
       obj.Finish();
     }    
   } 
@@ -63,7 +72,10 @@ public class runme
     using (SpicyX obj = new SpicyX(true))
     {
       MeshCreateSoft(obj); 
-      int nDeformables = obj.Init();
+      //int nDeformables = 
+      obj.Init();
+      int nRigids = obj.HardSize(); 
+      int nDeformables = obj.SoftSize(); 
       Console.WriteLine("[Tester] nDeformables: " + nDeformables);
       obj.Finish();
     } 
@@ -74,7 +86,10 @@ public class runme
   {
     using (SpicyX obj = new SpicyX(true))
     {
-        int nDeformables = obj.Init();
+        //int nDeformables = 
+        obj.Init();
+        int nRigids = obj.HardSize(); 
+        int nDeformables = obj.SoftSize(); 
         Console.WriteLine("[Tester] nDeformables: " + nDeformables);
 
         obj.KeyPress('P'); 

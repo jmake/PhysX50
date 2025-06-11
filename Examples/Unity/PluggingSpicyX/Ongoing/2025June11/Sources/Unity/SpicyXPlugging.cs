@@ -103,7 +103,10 @@ public class SpicyXPlugging : MonoBehaviour
             MeshCreateCube(sx, baseObject);
         }
 
-        int nDeformables = sx.Init();
+        sx.Init();
+        int nRigids = sx.HardSize(); 
+        int nDeformables = sx.SoftSize(); 
+        Debug.Log("[Tester] nRigids: " + nRigids);
         Debug.Log("[Tester] nDeformables: " + nDeformables);
 
         visualizers = new VertexVisualizer[nDeformables];

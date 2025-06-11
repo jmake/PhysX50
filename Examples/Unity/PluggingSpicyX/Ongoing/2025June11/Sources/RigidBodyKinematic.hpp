@@ -239,9 +239,10 @@ PxRigidDynamic* CreateCube(
     PxTriangleMeshGeometry mesh; 
     mesh = CreateBunnyMesh(vertices, triangles, physics, inserted); 
 
-    PxVec3 p(0.0,0.0,1.0);
-	PxQuat XZ(0.0,1.0,0.0,1.0);
-	PxTransform t = PxTransform(p,XZ);  
+    PxVec3 p(0.0,0.0,0.0);
+	//PxQuat XZ(0.0,1.0,0.0,1.0);
+	PxQuat identity(0.0,0.0,0.0,1.0);
+	PxTransform t = PxTransform(p,identity);  
 
     PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.0f);
 
@@ -356,10 +357,14 @@ public:
 	void MeshAdd(PxTriangleMeshGeometry mesh) 
 	{
 		//mesh = CreateBunnyMesh(vertices, triangles, gPhysics, inserted); 
-
+/*
 		PxVec3 p(0.0,0.0,1.0);
-		PxQuat XZ(0.0,1.0,0.0,1.0);
+		PxQuat XZ(0.0,1.0,0.0,1.0); // 0 0.7071068 0 0.7071068
 		PxTransform t = PxTransform(p,XZ);  
+*/
+    	PxVec3 p(0.0,0.0,0.0);
+		PxQuat identity(0.0,0.0,0.0,1.0); 
+		PxTransform t = PxTransform(p,identity);  
 
 		PxMaterial* material = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
 
@@ -413,6 +418,22 @@ public:
 	}	
 
 
+    std::vector<float> GlobalPoseGet()
+	{
+        if (rigidBody)
+        {
+			physx::PxTransform com = rigidBody->getGlobalPose(); 
+			physx::PxVec3 p = com.p; 
+			physx::PxQuat q = com.q; 
+			return std::vector<float>{p.x, p.y, p.z, q.x, q.y, q.z, q.w};
+		}
+		else 
+		{
+			return std::vector<float>{};
+		} 
+	}	
+
+
     int Update(int iteration, PxReal deltaTime)
     {
         if (rigidBody == nullptr) return 0; 
@@ -423,7 +444,7 @@ public:
 		physx::PxTransform com = rigidBody->getGlobalPose(); 
 		physx::PxVec3   p = com.p; 
 		physx::PxQuat   q = com.q; 
-		printf("[RigidBodyKinematic] %d) pose:(%f, %f, %f) \n", iteration, p.x, p.y, p.z);
+		printf("[RigidBodyKinematic.Update] %d) pose:(%f, %f, %f) \n", iteration, p.x, p.y, p.z);
 
         //PxTransform pose = rigidBody->getGlobalPose();        
 		//printf("[KinematicrigidBody] %d) pose:(%f, %f, %f) \n", iteration, pose.p.x, pose.p.y, pose.p.z);
@@ -563,21 +584,19 @@ int UnityHardCreate(
 		hardBodies.push_back(body); 
 	}
 
+	UnityHardVerts.clear();
+	UnityHardnVerts.clear(); 
+	UnityHardIndices.clear();
+	UnityHardnIndices.clear();
+	UnityHardKinematics.clear(); 
+	
 	return hardBodies.size(); 
 }
 
 
-void UnityHardUpdate(int iteration, PxReal deltaTime) 
+int UnityHardsSizeGet()
 {
-	printf("[UnityHardUpdate] nHardBodies:%zd \n", hardBodies.size());
-
-	//std::vector< std::vector<float> > positions; 
-	for (auto& body : hardBodies)
-	{
-		body.Update(iteration, deltaTime);
-		body.PositionGet(); 
-		//     std::vector<float> PositionGet()
-	}
+	return hardBodies.size();
 }
 
 
@@ -589,7 +608,7 @@ UnityHardPositionGet(int ibody)
 		RigidBodyKinematic body = hardBodies.at(ibody); 
 		position = body.PositionGet(); 
 	} catch (const std::out_of_range& e) {
-		std::cerr << "[UnityHardPositionGet] Index out of range: '" << e.what() << "' " <<std::endl;
+		std::cerr << "[UnityHardPositionGet] Index ("<< ibody <<") out of range: '" << e.what() << "' " <<std::endl;
 	}
 
 	return position; 
@@ -610,6 +629,40 @@ void UnityHardPositionSet(int ibody, float x, float y, float z)
 void UnityHardPositionGet(int ibody, float& x, float& y, float& z)
 {
 	UnityHardPositionGet(ibody); 
+}
+
+
+void 
+UnityHardUpdate(int iteration, PxReal deltaTime) 
+{
+	printf("[UnityHardUpdate] nHardBodies:%zd \n", hardBodies.size());
+
+	std::vector< std::vector<float> > poses; 
+	for (auto& body : hardBodies)
+	{
+		body.Update(iteration, deltaTime);
+	}
+
+}
+
+
+std::vector<float> 
+UnityHardGlobalPoseGet(int ibody) 
+{
+	std::vector<float> pose;
+
+	try {
+		RigidBodyKinematic body = hardBodies.at(ibody); 
+
+		pose = body.GlobalPoseGet(); 
+		printf("[UnityHardGlobalPoseGet] %d) pose:(", ibody); 
+		for (auto& p : pose) printf("%f ", p);
+		printf(") \n");
+	} catch (const std::out_of_range& e) {
+		std::cerr << "[UnityHardGlobalPoseGet] Index out of range: '" << e.what() << "' " <<std::endl;
+	}
+
+	return pose; 
 }
 
 

@@ -34,7 +34,10 @@ public class SwigTest : MonoBehaviour
     {
         SpicyX obj = new SpicyX();
 
-        int nDeformables = obj.Init();
+        obj.Init();
+        int nRigids = obj.HardSize(); 
+        int nDeformables = obj.SoftSize(); 
+        Debug.Log("[Tester] nRigids: " + nRigids);
         Debug.Log("[Tester] nDeformables: " + nDeformables);
 
         for(int i=0; i<69; i++) 
