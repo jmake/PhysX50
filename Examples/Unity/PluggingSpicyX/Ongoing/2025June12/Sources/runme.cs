@@ -40,7 +40,10 @@ public class runme
   {
     using (SpicyX obj = new SpicyX(true))
     {
-      MeshCreateHard(obj); 
+      float[] p0 = {0.001f, 0.002f, 0.003f};
+      float[] q0 = {0.0f, 0.0f, 0.0f, 1.0f};
+
+      MeshCreateHard(obj, p0, q0); 
       obj.Init();
       int nRigids = obj.HardSize(); 
       int nDeformables = obj.SoftSize(); 
@@ -188,8 +191,9 @@ public class runme
   }
 
 
-  static void MeshCreateHard(SpicyX spicyX)
+  static void MeshCreateHard(SpicyX spicyX, float[] p, float[] q)
   {
+    spicyX.GlobalPoseInitial(p[0],p[1],p[2], q[0],q[1],q[2],q[3]); 
     MeshCreate(spicyX, true, new MeshAddDelegate(spicyX.HardAdd));
   }
 

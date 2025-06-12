@@ -7,7 +7,7 @@
 
 
 std::vector<float> LoadFileFlat(const char* input, int* rows, int* cols);
-void LoggerCreate(bool); 
+void LoggerCreate(bool, bool); 
 
 int CudaVersion(); 
 float PhysxVersion(); 
@@ -28,10 +28,13 @@ void UnitySoftAdd(float* outArray1, int n1, int* outArray2, int n2);
 
 
 void UnityHardAdd(float* outArray1, int n1, int* outArray2, int n2, bool on);  
+
 void UnityHardPositionSet(int i, float x, float y, float z); 
 void UnityHardPositionGet(int i, float& x, float& y, float& z); 
 
 std::vector<float> UnityHardGlobalPoseGet(int ibody);  
+
+void UnityHardGlobalPoseInitial(float px, float py, float pz, float qx, float qy, float qz, float qw);  
 void UnityHardGlobalPoseSet(int ibody, float px, float py, float pz, float qx, float qy, float qz, float qw); 
 
 
@@ -42,9 +45,9 @@ int UnityDeformablesSizeGet();
 class SpicyX 
 {
 public :
-    SpicyX(bool append=false)
+    SpicyX(bool append=false, bool header=false)
     {
-        LoggerCreate( append );
+        LoggerCreate(append, header);
         interactive = false; 
         nRigidBodies = 0; 
     };
@@ -167,16 +170,23 @@ public :
     }
 
 
-    //void GlobalPoseSet(int ibody, float* outArray1, float* outArray3)
     void GlobalPoseSet(int ibody, float px, float py, float pz, float qx, float qy, float qz, float qw)
     {
         if( (ibody < 0) || (ibody > nRigidBodies) ) return; 
 
-        //UnityHardGlobalPoseSet(ibody, outArray1, outArray3); 
         UnityHardGlobalPoseSet(ibody,
             px, py, pz, 
             qx, qy, qz, qw 
         );
+    }
+
+
+    void GlobalPoseInitial(float px, float py, float pz, float qx, float qy, float qz, float qw)
+    {
+        UnityHardGlobalPoseInitial(
+            px, py, pz, 
+            qx, qy, qz, qw 
+        ); 
     }
 
 

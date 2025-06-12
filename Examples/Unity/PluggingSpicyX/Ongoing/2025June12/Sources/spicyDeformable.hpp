@@ -23,8 +23,8 @@
 #include "task/PxTask.h"
 
 #include "JsPhysX/triangle_mesh_create.hpp"
-#include "Logger.hpp"
 #include "RigidBodyKinematic.hpp"
+#include "Logger.hpp"
 
 
 #define MAX_NUM_ACTOR_SHAPES	128
@@ -409,7 +409,8 @@ void UnitySoftAdd(float* outArray1, int n1, int* outArray2, int n2)
 	if(logger == NULL) return; 
 
 	logger->log(
-		"[UnityInit] triVerts:" + std::to_string( n1 / 3 ) +
+		"[UnityInit] " +
+		std::to_string(UnitySoftnVerts.size()-1) + ") triVerts:" + std::to_string( n1 / 3 ) +
 		" triangles:" + std::to_string( n2 / 3 ) 
 	); 	
 
@@ -740,7 +741,7 @@ static void initScene( 	PxTolerancesScale scale )
 	params.buildTriangleAdjacencies = false;
 	params.buildGPUData = true;
 
-	int nHardBodies = UnityHardCreate(gScene, gPhysics); 
+	int nHardBodies = UnityHardCreate(gScene, gPhysics, logger); 
 	logger->log("[UnityHard] " + std::to_string(nHardBodies) + " hardBodies created");
 
 //	rbkObj = new RigidBodyKinematic(gPhysics, gScene, gMaterial);
@@ -795,11 +796,11 @@ void keyPress(unsigned char key)
 
 
 //---------------------------------------------------------------------------//
-void LoggerCreate(bool append) 
+void LoggerCreate(bool append, bool header) 
 {
 	//bool append = true; 
 	//logger = new Logger("F:\\z2025_1\\PhysX\\PhysX50\\physx\\SpicyTech\\output.txt", append);
-	logger = new Logger("spicytech.log", append);
+	logger = new Logger("spicytech.log", append, header);
 	logger->log("[LoggerCreate] ...");
 }
 

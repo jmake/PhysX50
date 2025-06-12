@@ -9,13 +9,15 @@
 #include <fstream>
 #include <iostream>
 #include <cstring>    // for std::memcpy
+#include <sstream>
 
 
 #include "PxPhysicsAPI.h"
 
 using namespace physx;
 
-class Logger; 
+//extern class Logger; 
+#include "Logger.hpp"
 
 
 void __setupCommonCookingParams__(PxCookingParams& params, bool skipMeshCleanup, bool skipEdgeData)
@@ -303,72 +305,66 @@ MeshCreate(
 }
 
 
+PxTransform GlobalPoseCreate(float px, float py, float pz, float qx, float qy, float qz, float qw)
+{
+	//PxVec3 p(0.0,0.0,1.0);
+	//PxQuat XZ(0.0,1.0,0.0,1.0); // 0 0.7071068 0 0.7071068
+	//PxTransform t = PxTransform(p,XZ);  
+
+	PxVec3 p(px,py,pz);
+	PxQuat q(qx,py,pz,qw); 
+	return PxTransform(p,q);  
+}	
+
 
 class RigidBodyKinematic
 {
 public:
-    RigidBodyKinematic(PxPhysics* physics, PxScene* scene, PxMaterial* material, bool kinematics) : 
+    RigidBodyKinematic(
+			PxPhysics* physics, 
+			PxScene* scene, 
+			PxMaterial* material, 
+			bool kinematics, 
+			Logger* logger=nullptr
+		) : 
         gPhysics(physics), 
         gScene(scene), 
         gMaterial(material), 
-        rigidBody(nullptr), 
-        simTime(0.0f)
+        simTime(0.0f), 
+		eKINEMATIC(kinematics), 
+		logger(logger)
     {
-		rigidBody = nullptr;
-		eKINEMATIC = kinematics; 
+		newPose = PxTransform();
+        rigidBody = nullptr;  
 	}
+
+
+    void GlobalPoseSet(float px, float py, float pz, float qx, float qy, float qz, float qw)
+	{
+		// eKINEMATIC 
+		newPose = GlobalPoseCreate(px, py, pz, qx, qy, qz, qw); 
+	}	
 
 /*
-    void Init() // eliminar!! 
-    {
-		rigidBody = nullptr;
-		//rigidBody = SphereTest(); 
-        rigidBody = CreateCube(gScene, gPhysics); 
-    }
-*/
-/*	
-	PxRigidDynamic* SphereTest() 
-    {
-        PxSphereGeometry geo = PxSphereGeometry(3.0f);  
-
-        PxShape* shape = gPhysics->createShape(geo, *gMaterial);
-
-        PxRigidDynamic* rb = gPhysics->createRigidDynamic(PxTransform(PxVec3(0.f, 5.0f, 0.f)));
-        rb->attachShape(*shape);
-        rb->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
-        gScene->addActor(*rb);
-        shape->release();
-
-        PositionSet(0.0, 0.0, 0.0); 
-        return rb; 
-    }
-*/
-
-	void KinematicOff()
+	void GeometrySet(PxTriangleMeshGeometry mesh) 
 	{
-		eKINEMATIC = false; 
-	}
-
-	void KinematicOn()
-	{
-		eKINEMATIC = true; 
-	}
-
-	void MeshAdd(PxTriangleMeshGeometry mesh) 
-	{
-		//mesh = CreateBunnyMesh(vertices, triangles, gPhysics, inserted); 
-/*
-		PxVec3 p(0.0,0.0,1.0);
-		PxQuat XZ(0.0,1.0,0.0,1.0); // 0 0.7071068 0 0.7071068
-		PxTransform t = PxTransform(p,XZ);  
-*/
     	PxVec3 p(0.0,0.0,0.0);
 		PxQuat identity(0.0,0.0,0.0,1.0); 
 		PxTransform t = PxTransform(p,identity);  
+		GeometrySet(mesh, t); 
 
+		if (rigidBody == nullptr)
+		{
+			GeometrySet(mesh, newPose); 
+		}
+	}
+*/
+
+	void GeometrySet(PxTriangleMeshGeometry mesh, PxTransform transform) 
+	{
 		PxMaterial* material = gPhysics->createMaterial(0.5f, 0.5f, 0.0f);
 
-		rigidBody = gPhysics->createRigidDynamic(t);
+		rigidBody = gPhysics->createRigidDynamic(transform);
 		PxRigidActorExt::createExclusiveShape(*rigidBody, mesh, *material);
 
 		if(eKINEMATIC)
@@ -383,6 +379,7 @@ public:
 
     void PositionSet(float x, float y, float z)
     {
+		// eKINEMATIC 
         newPose = PxTransform(PxVec3(x, y, z));
     }
 
@@ -434,17 +431,6 @@ public:
 	}	
 
 
-    void GlobalPoseSet(float px, float py, float pz, float qx, float qy, float qz, float qw)
-	{
-        if (rigidBody)
-        {
-			PxVec3 p(px,py,pz);
-			PxQuat q(qx,py,pz,qw); 
-			newPose = PxTransform(p,q);  
-		}
-	}	
-
-
     int Update(int iteration, PxReal deltaTime)
     {
         if (rigidBody == nullptr) return 0; 
@@ -462,7 +448,10 @@ public:
         //PxQuat rotation = PxQuat(PxCos(simTime * speed), PxVec3(0, 1, 0));
         //rigidBody->setKinematicTarget(PxTransform(pose.p, rotation));
 
-		if(eKINEMATIC) rigidBody->setKinematicTarget(newPose);
+		if(eKINEMATIC) 
+		{
+			rigidBody->setKinematicTarget(newPose);
+		}
 
 		return 1; 
     }
@@ -478,6 +467,14 @@ public:
     }
 
 
+	void MessageAdd(std::string& message)
+	{
+		if(logger == nullptr) return; 
+
+		logger->log( "[UnityHard] " + message ); 
+	}
+
+
     PxRigidDynamic* getActor() const { return rigidBody; }
 
 private:
@@ -490,6 +487,7 @@ private:
     PxTransform newPose; 
 
 	bool eKINEMATIC; 
+	Logger* logger; 
 };
 
 
@@ -502,6 +500,7 @@ std::vector< int* > UnityHardIndices;
 std::vector< int > UnityHardnIndices; 
 
 std::vector< bool > UnityHardKinematics; 
+std::vector< std::vector<float> > UnityHardGlobalPose0; 
 
 std::vector<RigidBodyKinematic> hardBodies; 
 
@@ -515,6 +514,7 @@ void UnityHardClear()
 	UnityHardIndices.clear();
 
 	UnityHardKinematics.clear(); 
+	UnityHardGlobalPose0.clear(); 
 
 	hardBodies.clear(); 
 }
@@ -522,7 +522,7 @@ void UnityHardClear()
 
 void UnityHardAdd(float* outArray1, int n1, int* outArray2, int n2, bool on) 
 {
-	//spicyX.MeshAdd(vertices, vertices.Length, triangles, triangles.Length); 
+	// (vertices, vertices.Length, triangles, triangles.Length); 
 	UnityHardnVerts.push_back( n1 ); 
 	UnityHardVerts.push_back( outArray1 ); 
 
@@ -533,6 +533,13 @@ void UnityHardAdd(float* outArray1, int n1, int* outArray2, int n2, bool on)
 } 
 
 
+void UnityHardGlobalPoseInitial(float px, float py, float pz, float qx, float qy, float qz, float qw)
+{
+	std::vector<float> pose = {px,py,pz, qx,qy,qz,qw}; 
+	UnityHardGlobalPose0.push_back( pose ); 
+}
+
+
 void UnityHardDataSet(
 		std::vector<PxVec3>& uVerts, int& nVertices, 
 		std::vector<PxU32>& uIndices, int& nTriangles, 
@@ -540,7 +547,6 @@ void UnityHardDataSet(
 		int* outArray2, int n2
 	) 
 {
-	//spicyX.MeshAdd(vertices, vertices.Length, triangles, triangles.Length); 
 	// outArray1 : n1 -> nVertices * nDims
 	// outArray2 : n2 -> nTriangles * nIndices 
 	int nDims = 3;
@@ -568,9 +574,24 @@ void UnityHardDataSet(
 }
 
 
+std::string VectorToString(const std::vector<float>& vec) {
+    std::ostringstream oss;
+
+	oss << "[ ";
+    for (size_t i = 0; i < vec.size(); ++i) {
+        oss << vec[i];
+        if (i != vec.size() - 1)
+            oss << ", ";
+    }
+	oss << " ]";
+    return oss.str();
+}
+
+
 int UnityHardCreate(
     PxScene* scene,
-    PxPhysics* physics
+    PxPhysics* physics, 
+	Logger* logger
 )
 {
 	printf("[UnityHardCreate] nRigids:%zd \n", UnityHardVerts.size());
@@ -586,13 +607,26 @@ int UnityHardCreate(
 			UnityHardVerts[i], UnityHardnVerts[i], 
 			UnityHardIndices[i], UnityHardnIndices[i]); 
 
-		PxTriangleMeshGeometry mesh; 
-		mesh = MeshCreate(physics, uVerts, numVertices, uIndices, numTriangles); 
+		PxTriangleMeshGeometry mesh = MeshCreate(physics, uVerts, numVertices, uIndices, numTriangles); 
 
 		PxMaterial* material = physics->createMaterial(0.5f, 0.5f, 0.f);
-		RigidBodyKinematic body = RigidBodyKinematic(physics, scene, material, UnityHardKinematics[i]); 
-		body.MeshAdd(mesh); 
+
+		RigidBodyKinematic body = RigidBodyKinematic(physics, scene, material, UnityHardKinematics[i], logger); 
+
+		std::vector<float> pose = UnityHardGlobalPose0[i]; 
+		logger->log("[UnityHard] " + std::to_string(i) + ") initial pose:" + VectorToString(pose) ); 
+
+		PxTransform transform = GlobalPoseCreate(pose[0], pose[1], pose[2], pose[3], pose[4], pose[5], pose[6]); 		
+		body.GeometrySet(mesh,transform); 
+
+		//body.GeometrySet(mesh); 
+
 		hardBodies.push_back(body); 
+
+		logger->log("[UnityHard] " + 
+			std::to_string(i) + ") triVerts:" + std::to_string(numVertices) + 
+			") triangles:" + std::to_string(numTriangles)  
+		);
 	}
 
 	UnityHardVerts.clear();
@@ -600,6 +634,7 @@ int UnityHardCreate(
 	UnityHardIndices.clear();
 	UnityHardnIndices.clear();
 	UnityHardKinematics.clear(); 
+	UnityHardGlobalPose0.clear(); 
 	
 	return hardBodies.size(); 
 }
@@ -681,7 +716,6 @@ void UnityHardGlobalPoseSet(int ibody, float px, float py, float pz, float qx, f
 {
 	try {
 		RigidBodyKinematic body = hardBodies.at(ibody); 
-		//body.GlobalPoseSet(x,y,z); 
 		body.GlobalPoseSet(px, py, pz, qx, qy, qz, qw); 
 	} catch (const std::out_of_range& e) {
 		std::cerr << "[UnityHardGlobalPoseSet] Index out of range: '" << e.what() << "' " <<std::endl;

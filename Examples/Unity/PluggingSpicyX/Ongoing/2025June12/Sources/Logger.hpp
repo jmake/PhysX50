@@ -5,12 +5,13 @@
 #include <iostream>
 #include <iomanip> // required for std::setw and std::setfill
 #include <sstream>
+#include <ctime>
 
 std::ostringstream oss;
 
 class Logger {
 public:
-    Logger(const std::string& path, bool append = false) 
+    Logger(const std::string& path, bool append = false, bool header=false) 
     {
         if (!append) {
             std::remove(path.c_str()); // remove file if not appending
@@ -19,7 +20,11 @@ public:
             logFile.open(path, std::ios::out | std::ios::app);
         }
 
+        std::time_t now = std::time(nullptr);
+        std::string timeStr = std::ctime(&now); 
+
         iline = 0; 
+        if(header) log(timeStr);
 	    log("[Logger] -----------------------------------------------------------------------");
     }
 
