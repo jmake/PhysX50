@@ -56,7 +56,7 @@ public class runme
 
       int itime = 0; 
       //obj.PositionSet(ibody, 0.0f, 0.0f, 0.0f); 
-      obj.GlobalPoseSet(ibody, itime, 1.0f,2.0f,3.0f, 4.0f,5.0f,6.0f,7.0f); 
+      obj.GlobalPoseSet(ibody, 1.0f,2.0f,3.0f, 4.0f,5.0f,6.0f,7.0f); 
       VisualizersEvolve(obj, itime); 
 
       //obj.PositionGet(ibody, position); 

@@ -35,7 +35,7 @@ void UnityHardPositionGet(int i, float& x, float& y, float& z);
 std::vector<float> UnityHardGlobalPoseGet(int ibody);  
 
 void UnityHardGlobalPoseInitial(float px, float py, float pz, float qx, float qy, float qz, float qw);  
-void UnityHardGlobalPoseSet(int ibody, int itime, float px, float py, float pz, float qx, float qy, float qz, float qw); 
+void UnityHardGlobalPoseSet(int ibody, float px, float py, float pz, float qx, float qy, float qz, float qw); 
 
 
 int UnityHardsSizeGet(); 
@@ -169,12 +169,12 @@ public :
     }
 
 
-    void GlobalPoseSet(int ibody, int itime, float px, float py, float pz, float qx, float qy, float qz, float qw)
+    void GlobalPoseSet(int ibody, float px, float py, float pz, float qx, float qy, float qz, float qw)
     {
         if( (ibody < 0) || (ibody > nRigidBodies) ) return; 
 
         // UnityHardGlobalPoseSet -> body = hardBodies.at(ibody) -> body.GlobalPoseSet  
-        UnityHardGlobalPoseSet(ibody, itime, 
+        UnityHardGlobalPoseSet(ibody, 
             px, py, pz, 
             qx, qy, qz, qw 
         );

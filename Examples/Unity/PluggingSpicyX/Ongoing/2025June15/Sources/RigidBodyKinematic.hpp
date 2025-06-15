@@ -708,7 +708,7 @@ UnityHardGlobalPoseGet(int ibody)
 }
 
 
-void UnityHardGlobalPoseSet(int ibody, int itime, float px, float py, float pz, float qx, float qy, float qz, float qw)
+void UnityHardGlobalPoseSet(int ibody, float px, float py, float pz, float qx, float qy, float qz, float qw)
 {
 	try {
 		RigidBodyKinematic& body = hardBodies.at(ibody); 
