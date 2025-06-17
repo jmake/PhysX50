@@ -4,6 +4,8 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
+using SpicyTech;
+
 public class runme
 {
   [DllImport("kernel32.dll", SetLastError = true)]
@@ -17,11 +19,15 @@ public class runme
     //SetDllDirectory("Assets\\Plugins");
     SetDllDirectory(".");
 
-    int cuda = ModuleName.CudaVersion();
+    int cuda = SpicyModule.CudaVersion();
     Console.WriteLine("[Tester] CUDA Version: " + cuda);
 
-    float physx = ModuleName.PhysxVersion();
+    float physx = SpicyModule.PhysxVersion();
     Console.WriteLine("[Tester] PhysX Version: " + physx);
+
+    using (SpicyX obj = new SpicyX(true))
+    {
+    }
 
     LoadFileFlatTest(); 
 
@@ -159,7 +165,7 @@ public class runme
     if( !File.Exists(filePath) ) return matrix; 
 
     int rows = 0, cols = 0;
-    FloatVector flatData = ModuleName.LoadFileFlat(filePath, out rows, out cols);
+    FloatVector flatData = SpicyModule.LoadFileFlat(filePath, out rows, out cols);
 
     for (int i = 0; i < rows; i++) {
         List<float> row = new List<float>();

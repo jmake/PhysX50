@@ -41,6 +41,7 @@ void UnityHardGlobalPoseSet(int ibody, float px, float py, float pz, float qx, f
 int UnityHardsSizeGet(); 
 int UnityDeformablesSizeGet();  
 
+namespace SpicyTech {
 
 class SpicyX 
 {
@@ -205,4 +206,4 @@ public :
         int nRigidBodies; 
 };
 
-
+} // SpicyTech  

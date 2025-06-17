@@ -48,37 +48,40 @@ add_library(LibrarySnippet STATIC ${SRCS})
 find_package(SWIG REQUIRED)
 include(${SWIG_USE_FILE})
 
-#set(CMAKE_SWIG_FLAGS "")
 set(CMAKE_SWIG_OUTDIR ${CMAKE_BINARY_DIR}/Release)
+
+set(MODULE_NAME "SpicyModule") # -> see '%module' in the '.i' file 
+set(LIBRARY_NAME "SpicyLibrary")
+
+set(CMAKE_SWIG_FLAGS -namespace SpicyTech) 
 set_source_files_properties(configuration.i PROPERTIES CPLUSPLUS ON)
 
-set(MODULE_NAME "ModuleName")
-swig_add_library(LibraryName 
+swig_add_library(${LIBRARY_NAME} 
                  LANGUAGE csharp
                  SOURCES configuration.i 
                  spicytech.cpp 
 )
-swig_link_libraries(LibraryName ${PHYSX_STATIC_LIBS} LibrarySnippet) ## ${LIBRARIES} )
-target_include_directories(${SWIG_MODULE_LibraryName_REAL_NAME} PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
-target_link_libraries(${SWIG_MODULE_LibraryName_REAL_NAME} CUDA::cudart)
+swig_link_libraries(${LIBRARY_NAME} ${PHYSX_STATIC_LIBS} LibrarySnippet) ## ${LIBRARIES} 
+target_include_directories(${SWIG_MODULE_${LIBRARY_NAME}_REAL_NAME} PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
+target_link_libraries(${SWIG_MODULE_${LIBRARY_NAME}_REAL_NAME} CUDA::cudart)
 
 ## 'PROJEC_NAME\Assets\Plugins' structure 
-add_custom_command(TARGET LibraryName POST_BUILD
+add_custom_command(TARGET ${LIBRARY_NAME} POST_BUILD
     # Create target directories
     COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_SOURCE_DIR}/Assets/Plugins"
     COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_SOURCE_DIR}/Assets/Plugins/SpicyTech"
 
     # Move the DLL
     COMMAND ${CMAKE_COMMAND} -E rename 
-        "$<TARGET_FILE:LibraryName>" 
-        "${CMAKE_SOURCE_DIR}/Assets/Plugins/LibraryName.dll"
+        "$<TARGET_FILE:${LIBRARY_NAME}>" 
+        "${CMAKE_SOURCE_DIR}/Assets/Plugins/${LIBRARY_NAME}.dll"
 
     # Move Unity test file
     COMMAND ${CMAKE_COMMAND} -E copy_directory 
         "${CMAKE_SOURCE_DIR}/Unity" 
         "${CMAKE_SOURCE_DIR}/Assets/Plugins/Scripts"
 
-    # Move all generated .cs files (ModuleName.cs, ModuleNamePINVOKE.cs, MyClass.cs, etc.)
+    # Move all generated .cs files (${MODULE_NAME}.cs", ${MODULE_NAME}PINVOKE.cs", MyClass.cs, etc.)
     COMMAND ${CMAKE_COMMAND} -E copy_directory 
         "${CMAKE_SWIG_OUTDIR}" 
         "${CMAKE_SOURCE_DIR}/Assets/Plugins/SpicyTech"

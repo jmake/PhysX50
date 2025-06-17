@@ -543,6 +543,7 @@ static void DeformableVolumesCreate(const PxCookingParams& params)
 
 	PxReal maxEdgeLength = 1;
 /*
+706058936B3F64CB7FD66EB4DFD089BFE833B402EAB51032373751F446EBB0EF
 	createCube2(triVerts, triIndices, PxVec3(0.0, 9, 0), 2.5);
 	PxRemeshingExt::limitMaxEdgeLength(triIndices, triVerts, maxEdgeLength);
 	DeformableVolumeCreate(params, triVerts, triIndices);
@@ -556,6 +557,8 @@ static void DeformableVolumesCreate(const PxCookingParams& params)
 */
 	// MeshCreate 
 	printf("[createDeformableVolumes] nDeformables:%zd \n", UnitySoftVerts.size());
+	if( UnitySoftVerts.size() < 1) return; // 706058936B3F64CB7FD66EB4DFD089BFE833B402EAB51032373751F446EBB0EF
+
 	for(int i=0; i < UnitySoftVerts.size(); i++)
 	{
 		PxArray<PxVec3> uVerts;   

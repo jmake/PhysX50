@@ -63,7 +63,7 @@ function COMPILATION
 
     cmake . "-DPHYSX_ROOT_DIR=${PHYSX_COMPILATION_DIR}"; 
     cmake --build . --target ALL_BUILD --config Release;
-#Set-Location -Path ${EXECUTION_PATH} 
+#Set-Location -Path ${EXECUTION_PATH}; exit 
 
     if (Test-Path "${EXECUTION_PATH}\Assets"){Remove-Item -Recurse -Force "${EXECUTION_PATH}\Assets"}
     mv "Assets" ${EXECUTION_PATH}
@@ -81,6 +81,9 @@ function COMPILATION
 #Set-Location -Path ${EXECUTION_PATH};exit 
 
     .\runme.exe
+
+    #rm runme.exe spicytech.log *.dat *_ 
+
 #    if (Test-Path runme.exe){Remove-Item -Recurse -Force runme.exe}
 
     ## Get-FileHash -Algorithm SHA256 -Path .\Assets\Plugins\spicytech.log
@@ -88,9 +91,12 @@ function COMPILATION
     ##  C4D3EE680C38E91DA7CFD38E32C480549DFF556C4F5C6D5DECF9A2DE9C76A3F0
     ##  15717805C49CBEE83281BB117D30947B8B84D4D7AE36B5B159ECD1506E7628BD
     ##  91C59C529A65A490B4F1C2BAD77AEB19B3F6219299C228D7F33BF2D0EDE53527
+    ##  03039C35F835492B0B6ED3D107347F472430B66FE5560F1689A6B22CF6B66A5F
+    ##  706058936B3F64CB7FD66EB4DFD089BFE833B402EAB51032373751F446EBB0EF 
+    ##   
     Verify-FileHash `
     -FilePath "spicytech.log" `
-    -ExpectedHash "03039C35F835492B0B6ED3D107347F472430B66FE5560F1689A6B22CF6B66A5F"
+    -ExpectedHash "15E5E80E2CB762B04D106F75F06B21BB5232C496DB59D20EE989551F0D6435E7"
 
     Set-Location -Path ${EXECUTION_PATH} 
     Write-Host "[COMPILATION] OK!"

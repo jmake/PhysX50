@@ -1,4 +1,4 @@
-%module ModuleName
+%module SpicyModule
 
 %{
 #include "spicytech.hpp"
@@ -11,7 +11,7 @@
 %include "typemaps.i"
 %include "arrays_csharp.i"
 
-%apply int INOUT[] { int* outArray2 };
+%apply   int INOUT[] {   int* outArray2 };
 %apply float INOUT[] { float* outArray1 };
 %apply float INOUT[] { float* outArray3 };
 
