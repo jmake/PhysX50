@@ -1,7 +1,9 @@
 using UnityEngine;
 
 
-public class ObjectSelector1 : MonoBehaviour
+namespace SpicyTech {
+
+public class ObjectSelector : MonoBehaviour
 {
     private Material originalMaterial;
     private GameObject currentlySelected;
@@ -121,3 +123,5 @@ public class ObjectSelector1 : MonoBehaviour
     GameObject target; 
     GameObject parent; 
 }
+
+} // SpicyTech

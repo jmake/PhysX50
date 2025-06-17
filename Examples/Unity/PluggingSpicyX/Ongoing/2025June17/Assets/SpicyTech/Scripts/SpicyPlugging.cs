@@ -8,10 +8,15 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
+//using SpicyTech;
 
-public class SpicyXPlugging1 : MonoBehaviour
+namespace SpicyTech
 {
-    [Header("set 'PxRigidBodyFlag::eKINEMATIC == true' ")]
+
+
+public class SpicyPlugging : MonoBehaviour
+{
+    //[Header("set 'PxRigidBodyFlag::eKINEMATIC == true' ")]
     public bool kinematic = true; 
 
     public int istep = 0; 
@@ -128,7 +133,7 @@ public class SpicyXPlugging1 : MonoBehaviour
 
             rigidBodies.Add( rb ); 
 
-            ObjectSelector1 os = go.AddComponent<ObjectSelector1>(); 
+            ObjectSelector os = go.AddComponent<ObjectSelector>(); 
             os.ParentSet( go );
             os.TargetSet( hardObject );
         }
@@ -365,7 +370,10 @@ public class SpicyXPlugging1 : MonoBehaviour
     }
 
 
-    [HideInInspector] public string something = "'spicyX.MeshAdd' works correctly, however, there is a strange segmentation fault the first time you try to run it. Upon restarting Unity, everything works relatively smoothly";
+    [HideInInspector] 
+    public static string something = "- kinematic = true : Static rigid bodies \n" + 
+    "- kinematic = false : Dynamic rigid bodies \n" + 
+    "(PxRigidBodyFlag::eKINEMATIC)"; 
 
     public GameObject[] softObjects; 
     public GameObject[] hardObjects; 
@@ -381,3 +389,5 @@ public class SpicyXPlugging1 : MonoBehaviour
     string message;
     bool pause; 
 }
+
+} // SpicyTech

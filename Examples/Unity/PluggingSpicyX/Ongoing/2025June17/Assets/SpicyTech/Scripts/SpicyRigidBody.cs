@@ -7,7 +7,10 @@ using System.IO;
 using System.Collections.Generic;
 
 using UnityEngine;
+using SpicyTech;
 
+
+namespace SpicyTech {
 
 public class SpicyRigidBody : MonoBehaviour
 {
@@ -102,3 +105,5 @@ public class SpicyRigidBody : MonoBehaviour
 
     [SerializeField] private Color highlightColor = Color.blue;
 }
+
+} // SpicyTech
