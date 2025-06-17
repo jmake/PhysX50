@@ -119,10 +119,10 @@ public class SpicyXPlugging1 : MonoBehaviour
             rb.RigidBodySet(hardObject, rigidBodies.Count); 
 
             Vector3 p0 = rb.PositionGet(); 
-            Debug.Log("p0:" + p0 ); 
+            Debug.Log("[" + hardObject.name + "] p0:" + p0 ); 
 
             Quaternion q0 = rb.QuaternionGet(); 
-            Debug.Log("q0:" + q0.eulerAngles + " ["+ q0 +"]"); 
+            Debug.Log("[" + hardObject.name + "] q0:" + q0.eulerAngles + " ["+ q0 +"]"); 
 
             MeshCreateHard(spicyX, hardObject, p0, q0);
 
@@ -138,6 +138,7 @@ public class SpicyXPlugging1 : MonoBehaviour
     void VisualizersDeformablesCreate(int nDeformables)
     {
         visualizersDeformables = new VertexVisualizer[nDeformables];
+        
         for (int i = 0; i < visualizersDeformables.Length; i++)
         {
             GameObject go = new GameObject("Soft_" + i); 
@@ -146,8 +147,21 @@ public class SpicyXPlugging1 : MonoBehaviour
             foreach (GameObject softObject in softObjects)
             {
                 visualizersDeformables[i].GetComponent<MeshRenderer>().material = softObject.GetComponent<MeshRenderer>().material;
+                softObject.SetActive(false); 
             }
         }
+        
+/*
+        int i = 0; 
+        foreach (GameObject softObject in softObjects)
+        {
+            GameObject go = new GameObject("Soft_" + softObject.name); 
+            visualizersDeformables[i] = go.AddComponent<VertexVisualizer>(); 
+            visualizersDeformables[i].GetComponent<MeshRenderer>().material = softObject.GetComponent<MeshRenderer>().material;
+            softObject.SetActive(false); 
+            i += 1; 
+        }
+*/
     }
 
 
@@ -257,6 +271,11 @@ public class SpicyXPlugging1 : MonoBehaviour
             return; 
         }
 
+        if (!mesh.isReadable)
+        {
+            Debug.LogError("[MeshCreate] ERROR!!Mesh is not readable (Model -> Inspector -> Import Settings -> Meshes -> Read/Write)");
+            return;
+        }
 
         int[] triangles = mesh.triangles; 
         int nTriangles = triangles.Length / 3;  
@@ -266,6 +285,12 @@ public class SpicyXPlugging1 : MonoBehaviour
 
         Debug.Log("[MeshCreate] Vertex count: " + nVertices);
         Debug.Log("[MeshCreate] Triangle count: " + nTriangles);
+
+        if (nVertices < 1 || nTriangles < 1)
+        {
+            Debug.LogError("[MeshCreate] ERROR!! 'nVertices < 1 || nTriangles < 1'");
+            return;
+        }
 
         float[] vertices; 
 
